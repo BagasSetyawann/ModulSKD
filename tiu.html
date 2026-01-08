@@ -1,0 +1,1438 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>E-Modul TIU CPNS</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- MathJax untuk Rumus Matematika -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script
+      id="MathJax-script"
+      async
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+    ></script>
+
+    <!-- Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Merriweather:ital,wght@0,300;0,400;0,700;1,400&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      /* Base Styles */
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: #f0f9ff; /* Light Blue Background */
+        color: #1e293b;
+      }
+      h1,
+      h2,
+      h3,
+      h4,
+      h5 {
+        font-family: "Merriweather", serif;
+      }
+
+      /* Layout Utilities */
+      .content-section {
+        background: white;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        border-radius: 0.75rem;
+        box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+        border: 1px solid #e2e8f0;
+      }
+      .sidebar-link {
+        transition: all 0.2s;
+        border-left: 3px solid transparent;
+        display: block;
+        padding: 0.5rem 1.5rem;
+        font-size: 0.875rem;
+        color: #475569;
+        cursor: pointer;
+      }
+      .sidebar-link:hover,
+      .sidebar-link.active {
+        background-color: #eff6ff; /* Blue-50 */
+        color: #1e40af; /* Blue-800 */
+        border-left-color: #1e40af;
+      }
+
+      /* Scrollbar */
+      aside::-webkit-scrollbar {
+        width: 5px;
+      }
+      aside::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      aside::-webkit-scrollbar-thumb {
+        background: #94a3b8;
+        border-radius: 3px;
+      }
+
+      /* Accordion Animation */
+      .accordion-content {
+        transition: max-height 0.3s ease-out, opacity 0.3s ease-out,
+          padding 0.3s ease;
+        max-height: 0;
+        overflow: hidden;
+        opacity: 0;
+      }
+      .accordion-item.active .accordion-content {
+        max-height: 1000px; /* Cukup tinggi untuk konten rumus */
+        opacity: 1;
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+      }
+      .accordion-icon {
+        transition: transform 0.3s;
+      }
+      .accordion-item.active .accordion-icon {
+        transform: rotate(180deg);
+      }
+
+      /* Flip Cards */
+      .flip-card {
+        background-color: transparent;
+        height: 280px;
+        perspective: 1000px;
+        cursor: pointer;
+      }
+      .flip-card-inner {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        text-align: center;
+        transition: transform 0.6s;
+        transform-style: preserve-3d;
+        border-radius: 0.75rem;
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+      }
+      .flip-card.clicked .flip-card-inner {
+        transform: rotateY(180deg);
+      }
+      .flip-card-front,
+      .flip-card-back {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        -webkit-backface-visibility: hidden;
+        backface-visibility: hidden;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 1.5rem;
+        border-radius: 0.75rem;
+        border: 1px solid #e2e8f0;
+        background: white;
+      }
+      .flip-card-back {
+        background-color: #eff6ff;
+        color: #1e293b;
+        transform: rotateY(180deg);
+        border-color: #bfdbfe;
+        text-align: center;
+      }
+
+      /* Animations */
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(5px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .tab-content {
+        display: none;
+        animation: fadeIn 0.4s ease-out;
+      }
+      .tab-content.active {
+        display: block;
+      }
+
+      /* Custom Table */
+      .formula-table td,
+      .formula-table th {
+        border: 1px solid #e2e8f0;
+        padding: 0.75rem;
+      }
+      .formula-table th {
+        background-color: #f8fafc;
+        font-weight: 600;
+        text-align: left;
+      }
+
+      /* Formula Box */
+      .formula-box {
+        background-color: #f8fafc;
+        border-left: 4px solid #3b82f6; /* Blue-500 */
+        padding: 1rem;
+        border-radius: 0.25rem;
+        font-family: "Courier New", Courier, monospace;
+        overflow-x: auto;
+      }
+    </style>
+  </head>
+  <body class="flex flex-col md:flex-row min-h-screen text-sm md:text-base">
+    <!-- Mobile Header -->
+    <header
+      class="md:hidden bg-blue-900 text-white p-4 sticky top-0 z-50 flex justify-between items-center shadow-md shrink-0"
+    >
+      <a href="index.html">
+        <h1 class="text-lg font-bold flex items-center gap-2">
+          <i data-lucide="calculator" class="w-5 h-5"></i> Modul TIU
+        </h1>
+      </a>
+
+      <button
+        id="menuBtn"
+        class="p-2 focus:outline-none hover:bg-blue-800 rounded"
+      >
+        <i data-lucide="menu" class="w-6 h-6"></i>
+      </button>
+    </header>
+
+    <!-- Sidebar Navigation -->
+    <aside
+      id="sidebar"
+      class="fixed inset-y-0 left-0 transform -translate-x-full md:translate-x-0 md:static md:w-72 bg-white border-r border-gray-200 z-40 transition-transform duration-300 ease-in-out flex flex-col h-screen shrink-0 shadow-xl md:shadow-none"
+    >
+      <div class="bg-white border-b border-gray-200 shadow-sm shrink-0">
+        <div class="p-6 bg-gradient-to-br from-blue-900 to-blue-800 text-white">
+          <a href="index.html" class="inline-block">
+            <h1 class="text-lg font-bold flex items-center gap-2">
+              <i data-lucide="calculator" class="w-5 h-5"></i> Modul TIU
+            </h1>
+          </a>
+
+          <p class="text-blue-200 text-xs mt-1">Numerik & Logika</p>
+        </div>
+
+        <!-- Main Tabs Selector -->
+        <div
+          class="grid grid-cols-2 gap-1 p-2 bg-gray-50 text-xs font-semibold overflow-y-auto max-h-40 md:max-h-none"
+        >
+          <button
+            onclick="switchTab('aritmatika')"
+            id="btn-aritmatika"
+            class="nav-btn py-2 rounded bg-blue-800 text-white shadow"
+          >
+            1. Aritmatika
+          </button>
+          <button
+            onclick="switchTab('perbandingan')"
+            id="btn-perbandingan"
+            class="nav-btn py-2 rounded bg-white text-gray-600 hover:bg-gray-100"
+          >
+            2. Perbandingan
+          </button>
+          <button
+            onclick="switchTab('persamaan')"
+            id="btn-persamaan"
+            class="nav-btn py-2 rounded bg-white text-gray-600 hover:bg-gray-100"
+          >
+            3. Persamaan
+          </button>
+          <button
+            onclick="switchTab('statistika')"
+            id="btn-statistika"
+            class="nav-btn py-2 rounded bg-white text-gray-600 hover:bg-gray-100"
+          >
+            4. Statistika
+          </button>
+          <button
+            onclick="switchTab('jarak')"
+            id="btn-jarak"
+            class="nav-btn py-2 rounded bg-white text-gray-600 hover:bg-gray-100"
+          >
+            5. Jarak & Waktu
+          </button>
+          <button
+            onclick="switchTab('himpunan')"
+            id="btn-himpunan"
+            class="nav-btn py-2 rounded bg-white text-gray-600 hover:bg-gray-100"
+          >
+            6. Himpunan
+          </button>
+          <button
+            onclick="switchTab('barisan')"
+            id="btn-barisan"
+            class="nav-btn py-2 rounded bg-white text-gray-600 hover:bg-gray-100"
+          >
+            7. Barisan Deret
+          </button>
+        </div>
+      </div>
+
+      <!-- Sub-menu Links (Generated per tab) -->
+      <div class="flex-1 overflow-y-auto py-4 bg-gray-50" id="sidebar-content">
+        <!-- Aritmatika Links -->
+        <div id="sidebar-aritmatika" class="sidebar-group">
+          <p
+            class="px-6 py-2 text-xs font-bold text-gray-400 uppercase tracking-wider"
+          >
+            Aritmatika
+          </p>
+          <a href="#arit-persentase" class="sidebar-link">Persentase</a>
+          <a href="#arit-sosial" class="sidebar-link">Aritmatika Sosial</a>
+          <a href="#arit-dagang" class="sidebar-link">Hitung Dagang</a>
+          <a href="#arit-satuan" class="sidebar-link">Konversi Satuan</a>
+        </div>
+
+        <!-- Perbandingan Links -->
+        <div id="sidebar-perbandingan" class="sidebar-group hidden">
+          <p
+            class="px-6 py-2 text-xs font-bold text-gray-400 uppercase tracking-wider"
+          >
+            Perbandingan
+          </p>
+          <a href="#band-senilai" class="sidebar-link">Perbandingan Senilai</a>
+          <a href="#band-berbalik" class="sidebar-link"
+            >Perbandingan Terbalik</a
+          >
+          <a href="#band-gabungan" class="sidebar-link">Pekerjaan Gabungan</a>
+          <a href="#band-skala" class="sidebar-link">Skala & Peta</a>
+        </div>
+
+        <!-- Persamaan Links -->
+        <div id="sidebar-persamaan" class="sidebar-group hidden">
+          <p
+            class="px-6 py-2 text-xs font-bold text-gray-400 uppercase tracking-wider"
+          >
+            Persamaan
+          </p>
+          <a href="#pers-linier" class="sidebar-link">Persamaan Linier</a>
+          <a href="#pers-kuadrat" class="sidebar-link">Persamaan Kuadrat</a>
+          <a href="#pers-taksama" class="sidebar-link">Pertidaksamaan</a>
+        </div>
+
+        <!-- Statistika Links -->
+        <div id="sidebar-statistika" class="sidebar-group hidden">
+          <p
+            class="px-6 py-2 text-xs font-bold text-gray-400 uppercase tracking-wider"
+          >
+            Statistika
+          </p>
+          <a href="#stat-mean" class="sidebar-link">Mean (Rata-rata)</a>
+          <a href="#stat-median" class="sidebar-link">Median (Nilai Tengah)</a>
+          <a href="#stat-modus" class="sidebar-link">Modus (Paling Sering)</a>
+        </div>
+
+        <!-- Jarak Waktu Links -->
+        <div id="sidebar-jarak" class="sidebar-group hidden">
+          <p
+            class="px-6 py-2 text-xs font-bold text-gray-400 uppercase tracking-wider"
+          >
+            Jarak, Waktu, Kecepatan
+          </p>
+          <a href="#jkw-rumus" class="sidebar-link">Rumus Umum</a>
+          <a href="#jkw-variasi" class="sidebar-link">Susul & Papasan</a>
+        </div>
+
+        <!-- Himpunan Links -->
+        <div id="sidebar-himpunan" class="sidebar-group hidden">
+          <p
+            class="px-6 py-2 text-xs font-bold text-gray-400 uppercase tracking-wider"
+          >
+            Himpunan
+          </p>
+          <a href="#him-jenis" class="sidebar-link">Jenis Himpunan</a>
+          <a href="#him-operasi" class="sidebar-link">Operasi & Rumus</a>
+        </div>
+
+        <!-- Barisan Links -->
+        <div id="sidebar-barisan" class="sidebar-group hidden">
+          <p
+            class="px-6 py-2 text-xs font-bold text-gray-400 uppercase tracking-wider"
+          >
+            Barisan & Deret
+          </p>
+          <a href="#bar-aritmatika" class="sidebar-link">Barisan Aritmatika</a>
+          <a href="#bar-geometri" class="sidebar-link">Barisan Geometri</a>
+        </div>
+      </div>
+
+      <div
+        class="p-4 border-t border-gray-200 text-xs text-gray-500 text-center shrink-0"
+      >
+        &copy; 2024 Modul TIU CPNS
+      </div>
+    </aside>
+
+    <!-- Overlay -->
+    <div
+      id="overlay"
+      class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden md:hidden transition-opacity"
+    ></div>
+
+    <!-- Main Content Area -->
+    <main
+      class="flex-1 p-4 md:p-8 lg:p-12 overflow-y-auto h-screen scroll-smooth bg-slate-50 relative"
+      id="main-scroll"
+    >
+      <div class="max-w-5xl mx-auto pb-20">
+        <!-- ========================= MODUL 1: ARITMATIKA ========================= -->
+        <div id="content-aritmatika" class="tab-content active">
+          <div class="mb-8 text-center">
+            <span
+              class="bg-blue-100 text-blue-800 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide"
+              >TIU 1</span
+            >
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mt-2 mb-4">
+              Aritmatika Dasar & Sosial
+            </h2>
+            <p class="text-gray-600">
+              Menguasai perhitungan dasar, persentase, dan penerapan ekonomi
+              sederhana.
+            </p>
+          </div>
+
+          <section
+            id="arit-persentase"
+            class="content-section border-t-4 border-blue-600"
+          >
+            <h3
+              class="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2"
+            >
+              <i data-lucide="percent" class="w-6 h-6 text-blue-600"></i>
+              Persentase
+            </h3>
+            <p class="mb-4 text-gray-700">
+              Persentase artinya per seratus. Sering digunakan dalam diskon,
+              kenaikan harga, dll.
+            </p>
+
+            <div class="grid md:grid-cols-2 gap-4">
+              <div
+                class="bg-white p-4 rounded-lg shadow-sm border border-gray-200"
+              >
+                <strong class="block text-blue-700 mb-2">Bentuk Umum</strong>
+                <div class="text-lg">$$x\% = \frac{x}{100}$$</div>
+              </div>
+              <div
+                class="bg-white p-4 rounded-lg shadow-sm border border-gray-200"
+              >
+                <strong class="block text-blue-700 mb-2"
+                  >Persentase x terhadap y</strong
+                >
+                <div class="text-lg">$$\frac{x}{y} \times 100\%$$</div>
+              </div>
+              <div
+                class="bg-white p-4 rounded-lg shadow-sm border border-gray-200"
+              >
+                <strong class="block text-blue-700 mb-2">y% dari z</strong>
+                <div class="text-lg">$$\frac{y}{100} \times z$$</div>
+              </div>
+              <div
+                class="bg-white p-4 rounded-lg shadow-sm border border-gray-200"
+              >
+                <strong class="block text-blue-700 mb-2"
+                  >x adalah y persen dari z</strong
+                >
+                <div class="text-lg">$$x = y\% \times z$$</div>
+              </div>
+            </div>
+          </section>
+
+          <section id="arit-sosial" class="content-section">
+            <h3 class="text-2xl font-bold text-gray-800 mb-4">
+              Aritmatika Sosial
+            </h3>
+
+            <div class="space-y-3">
+              <!-- Persentase Perubahan Accordion -->
+              <div
+                class="accordion-item border border-gray-200 rounded-lg bg-white overflow-hidden"
+              >
+                <button
+                  class="w-full text-left p-4 bg-gray-50 hover:bg-blue-50 font-semibold text-gray-800 flex justify-between items-center transition"
+                  onclick="toggleAccordion(this)"
+                >
+                  <span class="flex items-center gap-2"
+                    ><i
+                      data-lucide="trending-up"
+                      class="w-4 h-4 text-green-600"
+                    ></i>
+                    Persentase Kenaikan & Penurunan</span
+                  >
+                  <i
+                    data-lucide="chevron-down"
+                    class="accordion-icon w-5 h-5 text-gray-500"
+                  ></i>
+                </button>
+                <div class="accordion-content px-5 bg-white text-gray-700">
+                  <div class="grid md:grid-cols-2 gap-4 py-4">
+                    <div
+                      class="p-3 bg-green-50 rounded border border-green-100"
+                    >
+                      <strong>% Kenaikan:</strong>
+                      <div class="mt-2">
+                        $$\frac{\text{Besar Kenaikan}}{\text{Data Awal}} \times
+                        100\%$$
+                      </div>
+                    </div>
+                    <div class="p-3 bg-red-50 rounded border border-red-100">
+                      <strong>% Penurunan:</strong>
+                      <div class="mt-2">
+                        $$\frac{\text{Besar Penurunan}}{\text{Data Awal}} \times
+                        100\%$$
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Persentase Gabungan Accordion -->
+              <div
+                class="accordion-item border border-gray-200 rounded-lg bg-white overflow-hidden"
+              >
+                <button
+                  class="w-full text-left p-4 bg-gray-50 hover:bg-blue-50 font-semibold text-gray-800 flex justify-between items-center transition"
+                  onclick="toggleAccordion(this)"
+                >
+                  <span class="flex items-center gap-2"
+                    ><i
+                      data-lucide="layers"
+                      class="w-4 h-4 text-purple-600"
+                    ></i>
+                    Persentase Gabungan</span
+                  >
+                  <i
+                    data-lucide="chevron-down"
+                    class="accordion-icon w-5 h-5 text-gray-500"
+                  ></i>
+                </button>
+                <div class="accordion-content px-5 bg-white text-gray-700">
+                  <p class="py-2">
+                    Digunakan jika ada beberapa kelompok data dengan persentase
+                    berbeda.
+                  </p>
+                  <div class="formula-box mb-4">
+                    $$\% \text{Gabungan} = \frac{(x_1\% \cdot n_1) + (x_2\%
+                    \cdot n_2) + \dots}{n_1 + n_2 + \dots}$$
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section
+            id="arit-dagang"
+            class="content-section bg-gradient-to-br from-white to-blue-50"
+          >
+            <h3 class="text-xl font-bold mb-6 text-gray-800">Hitung Dagang</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <!-- Flip Cards -->
+              <div class="flip-card" onclick="this.classList.toggle('clicked')">
+                <div class="flip-card-inner">
+                  <div class="flip-card-front bg-white border border-blue-200">
+                    <div class="bg-blue-100 p-3 rounded-full mb-3">
+                      <i data-lucide="tag" class="text-blue-600 w-8 h-8"></i>
+                    </div>
+                    <h4 class="font-bold text-blue-900 text-lg">Diskon</h4>
+                    <p class="text-xs text-gray-400 mt-2">Klik untuk rumus</p>
+                  </div>
+                  <div class="flip-card-back">
+                    <h5 class="font-bold text-blue-900 mb-2">
+                      Diskon (Potongan)
+                    </h5>
+                    <p class="text-sm mb-2">
+                      Harga Bayar = Harga Awal - Diskon
+                    </p>
+                    <hr class="border-blue-200 my-2 w-full" />
+                    <strong class="text-xs text-blue-800"
+                      >Diskon Ganda (A% + B%):</strong
+                    >
+                    <div class="text-xs mt-1">
+                      Total = $A + B - \frac{A \cdot B}{100}$
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="flip-card" onclick="this.classList.toggle('clicked')">
+                <div class="flip-card-inner">
+                  <div class="flip-card-front bg-white border border-green-200">
+                    <div class="bg-green-100 p-3 rounded-full mb-3">
+                      <i
+                        data-lucide="trending-up"
+                        class="text-green-600 w-8 h-8"
+                      ></i>
+                    </div>
+                    <h4 class="font-bold text-green-900 text-lg">Untung</h4>
+                    <p class="text-xs text-gray-400 mt-2">Klik untuk rumus</p>
+                  </div>
+                  <div class="flip-card-back bg-green-50 border-green-200">
+                    <h5 class="font-bold text-green-900 mb-2">Keuntungan</h5>
+                    <p class="text-sm">Syarat: Harga Jual > Harga Beli</p>
+                    <div class="mt-4 text-sm font-bold">
+                      $$\%U = \frac{HJ - HB}{HB} \times 100\%$$
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="flip-card" onclick="this.classList.toggle('clicked')">
+                <div class="flip-card-inner">
+                  <div class="flip-card-front bg-white border border-red-200">
+                    <div class="bg-red-100 p-3 rounded-full mb-3">
+                      <i
+                        data-lucide="trending-down"
+                        class="text-red-600 w-8 h-8"
+                      ></i>
+                    </div>
+                    <h4 class="font-bold text-red-900 text-lg">Rugi</h4>
+                    <p class="text-xs text-gray-400 mt-2">Klik untuk rumus</p>
+                  </div>
+                  <div class="flip-card-back bg-red-50 border-red-200">
+                    <h5 class="font-bold text-red-900 mb-2">Kerugian</h5>
+                    <p class="text-sm">Syarat: Harga Jual < Harga Beli</p>
+                    <div class="mt-4 text-sm font-bold">
+                      $$\%R = \frac{HB - HJ}{HB} \times 100\%$$
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div
+                class="flip-card md:col-span-2 lg:col-span-3 h-40"
+                onclick="this.classList.toggle('clicked')"
+              >
+                <div class="flip-card-inner">
+                  <div
+                    class="flip-card-front bg-white border border-orange-200 flex flex-row gap-4"
+                  >
+                    <div class="bg-orange-100 p-3 rounded-full">
+                      <i
+                        data-lucide="package"
+                        class="text-orange-600 w-8 h-8"
+                      ></i>
+                    </div>
+                    <div class="text-left">
+                      <h4 class="font-bold text-orange-900 text-lg">
+                        Bruto, Tara, Netto
+                      </h4>
+                      <p class="text-sm text-gray-500">
+                        Hubungan berat kotor, kemasan, dan bersih.
+                      </p>
+                    </div>
+                  </div>
+                  <div class="flip-card-back bg-orange-50 border-orange-200">
+                    <div class="flex justify-around w-full items-center">
+                      <div><strong>Bruto</strong><br />(Kotor)</div>
+                      <div class="text-2xl font-bold">=</div>
+                      <div><strong>Netto</strong><br />(Bersih)</div>
+                      <div class="text-2xl font-bold">+</div>
+                      <div><strong>Tara</strong><br />(Kemasan)</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section id="arit-satuan" class="content-section">
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="text-xl font-bold text-gray-800">Konversi Satuan</h3>
+              <input
+                type="text"
+                id="searchSatuan"
+                placeholder="Cari satuan (misal: kodi)..."
+                onkeyup="filterSatuan()"
+                class="p-2 border rounded text-sm w-48 focus:ring-2 focus:ring-blue-500 outline-none"
+              />
+            </div>
+
+            <div
+              class="overflow-x-auto border rounded-lg max-h-60 overflow-y-auto"
+            >
+              <table class="w-full text-sm text-left" id="tableSatuan">
+                <thead class="bg-gray-100 sticky top-0">
+                  <tr>
+                    <th class="p-3 border-b">Kategori</th>
+                    <th class="p-3 border-b">Satuan</th>
+                    <th class="p-3 border-b">Konversi</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y">
+                  <tr>
+                    <td class="p-3 font-semibold text-blue-600">Berat</td>
+                    <td>1 Kuintal</td>
+                    <td>100 kg</td>
+                  </tr>
+                  <tr>
+                    <td class="p-3 font-semibold text-blue-600">Berat</td>
+                    <td>1 Ton</td>
+                    <td>1.000 kg</td>
+                  </tr>
+                  <tr>
+                    <td class="p-3 font-semibold text-blue-600">Berat</td>
+                    <td>1 Pon</td>
+                    <td>5 Ons</td>
+                  </tr>
+                  <tr>
+                    <td class="p-3 font-semibold text-blue-600">Berat</td>
+                    <td>1 Ons</td>
+                    <td>100 Gram</td>
+                  </tr>
+                  <tr>
+                    <td class="p-3 font-semibold text-green-600">Panjang</td>
+                    <td>1 Inchi</td>
+                    <td>2,54 cm</td>
+                  </tr>
+                  <tr>
+                    <td class="p-3 font-semibold text-green-600">Panjang</td>
+                    <td>1 Kaki</td>
+                    <td>12 Inchi</td>
+                  </tr>
+                  <tr>
+                    <td class="p-3 font-semibold text-green-600">Panjang</td>
+                    <td>1 Yard</td>
+                    <td>3 Kaki</td>
+                  </tr>
+                  <tr>
+                    <td class="p-3 font-semibold text-green-600">Panjang</td>
+                    <td>1 Mil</td>
+                    <td>1.760 Yard</td>
+                  </tr>
+                  <tr>
+                    <td class="p-3 font-semibold text-purple-600">Jumlah</td>
+                    <td>1 Rim</td>
+                    <td>500 Lembar</td>
+                  </tr>
+                  <tr>
+                    <td class="p-3 font-semibold text-purple-600">Jumlah</td>
+                    <td>1 Kodi</td>
+                    <td>20 Helai</td>
+                  </tr>
+                  <tr>
+                    <td class="p-3 font-semibold text-purple-600">Jumlah</td>
+                    <td>1 Lusin</td>
+                    <td>12 Buah</td>
+                  </tr>
+                  <tr>
+                    <td class="p-3 font-semibold text-purple-600">Jumlah</td>
+                    <td>1 Gros</td>
+                    <td>144 Buah (12 Lusin)</td>
+                  </tr>
+                  <tr>
+                    <td class="p-3 font-semibold text-orange-600">Waktu</td>
+                    <td>1 Lustrum</td>
+                    <td>5 Tahun</td>
+                  </tr>
+                  <tr>
+                    <td class="p-3 font-semibold text-orange-600">Waktu</td>
+                    <td>1 Dasawarsa</td>
+                    <td>10 Tahun</td>
+                  </tr>
+                  <tr>
+                    <td class="p-3 font-semibold text-orange-600">Waktu</td>
+                    <td>1 Abad</td>
+                    <td>100 Tahun</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+
+        <!-- ========================= MODUL 2: PERBANDINGAN ========================= -->
+        <div id="content-perbandingan" class="tab-content hidden">
+          <div class="mb-8 text-center">
+            <span
+              class="bg-indigo-100 text-indigo-800 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide"
+              >TIU 2</span
+            >
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mt-2 mb-4">
+              Perbandingan & Skala
+            </h2>
+          </div>
+
+          <section class="content-section">
+            <div class="grid md:grid-cols-2 gap-6">
+              <!-- Senilai -->
+              <div
+                id="band-senilai"
+                class="bg-blue-50 border-2 border-blue-200 rounded-xl p-5 hover:shadow-md transition"
+              >
+                <div class="flex items-center gap-2 mb-3">
+                  <span class="bg-blue-600 text-white p-2 rounded-lg font-bold"
+                    >A</span
+                  >
+                  <h3 class="text-xl font-bold text-blue-900">
+                    Perbandingan Senilai
+                  </h3>
+                </div>
+                <p class="text-sm text-gray-700 mb-3 italic">
+                  "Jika satu variabel bertambah, variabel lain IKUT bertambah."
+                </p>
+                <ul class="text-sm list-disc pl-5 mb-4 text-gray-600">
+                  <li>Jumlah barang dengan harga bayar</li>
+                  <li>Jarak tempuh dengan bensin</li>
+                </ul>
+                <div
+                  class="bg-white p-3 rounded border border-blue-100 text-center font-bold text-blue-800"
+                >
+                  $$\frac{D}{E} = \frac{F}{G} \quad \text{atau} \quad D \times G
+                  = E \times F$$
+                </div>
+              </div>
+
+              <!-- Terbalik -->
+              <div
+                id="band-berbalik"
+                class="bg-orange-50 border-2 border-orange-200 rounded-xl p-5 hover:shadow-md transition"
+              >
+                <div class="flex items-center gap-2 mb-3">
+                  <span
+                    class="bg-orange-600 text-white p-2 rounded-lg font-bold"
+                    >B</span
+                  >
+                  <h3 class="text-xl font-bold text-orange-900">
+                    Perbandingan Berbalik Nilai
+                  </h3>
+                </div>
+                <p class="text-sm text-gray-700 mb-3 italic">
+                  "Jika satu variabel bertambah, variabel lain BERKURANG."
+                </p>
+                <ul class="text-sm list-disc pl-5 mb-4 text-gray-600">
+                  <li>Jumlah pekerja dengan waktu selesai</li>
+                  <li>Kecepatan dengan waktu tempuh</li>
+                </ul>
+                <div
+                  class="bg-white p-3 rounded border border-orange-100 text-center font-bold text-orange-800"
+                >
+                  $$\frac{D}{E} = \frac{G}{F} \quad \text{atau} \quad D \times F
+                  = E \times G$$
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section
+            id="band-gabungan"
+            class="content-section bg-slate-800 text-white"
+          >
+            <div class="flex items-start gap-4">
+              <div class="p-3 bg-slate-700 rounded-lg">
+                <i data-lucide="users" class="w-8 h-8 text-yellow-400"></i>
+              </div>
+              <div>
+                <h3 class="text-xl font-bold text-yellow-400 mb-2">
+                  Pekerjaan Gabungan
+                </h3>
+                <p class="text-gray-300 text-sm mb-4">
+                  Rumus cepat untuk menghitung waktu jika dua orang (A dan B)
+                  bekerja bersama-sama.
+                </p>
+                <div class="bg-slate-700 p-4 rounded-lg inline-block">
+                  $$T_{gabungan} = \frac{t_1 \times t_2}{t_1 + t_2}$$
+                </div>
+                <div class="mt-2 text-xs text-gray-400">
+                  *t1 = waktu orang pertama, t2 = waktu orang kedua.
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section id="band-skala" class="content-section">
+            <h3 class="text-xl font-bold mb-4">Skala</h3>
+            <div
+              class="bg-white p-4 border rounded-lg shadow-sm flex flex-col md:flex-row items-center justify-around gap-4"
+            >
+              <div class="text-center">
+                <div class="text-lg font-bold text-gray-800">Rumus Skala</div>
+                <div class="mt-2 text-xl text-blue-600 font-mono">
+                  $$S = \frac{JP}{JS}$$
+                </div>
+              </div>
+              <div class="text-sm text-gray-600 space-y-2 border-l pl-4">
+                <div><strong>S</strong> = Skala</div>
+                <div><strong>JP</strong> = Jarak Peta (Gambar)</div>
+                <div><strong>JS</strong> = Jarak Sebenarnya</div>
+                <div class="text-xs text-red-500 italic">
+                  *Samakan satuan ke cm dahulu!
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- ========================= MODUL 3: PERSAMAAN ========================= -->
+        <div id="content-persamaan" class="tab-content hidden">
+          <div class="mb-8 text-center">
+            <span
+              class="bg-green-100 text-green-800 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide"
+              >TIU 3</span
+            >
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mt-2 mb-4">
+              Persamaan & Pertidaksamaan
+            </h2>
+          </div>
+
+          <section id="pers-linier" class="content-section">
+            <h3 class="text-xl font-bold mb-4 border-b pb-2">
+              Persamaan Linier
+            </h3>
+            <div class="space-y-4">
+              <div class="bg-gray-50 p-4 rounded border">
+                <strong class="text-lg text-gray-800">1 Variabel</strong>
+                <p class="text-sm text-gray-600 mb-2">Bentuk: $ax + b = c$</p>
+                <div class="bg-white px-3 py-1 inline-block border rounded">
+                  $$x = \frac{c - b}{a}$$
+                </div>
+              </div>
+              <div class="bg-gray-50 p-4 rounded border">
+                <strong class="text-lg text-gray-800">2 & 3 Variabel</strong>
+                <p class="text-sm text-gray-600">Diselesaikan dengan metode:</p>
+                <div class="flex gap-2 mt-2">
+                  <span
+                    class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded font-bold"
+                    >Eliminasi</span
+                  >
+                  <span
+                    class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded font-bold"
+                    >Substitusi</span
+                  >
+                  <span
+                    class="px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded font-bold"
+                    >Campuran</span
+                  >
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section
+            id="pers-kuadrat"
+            class="content-section bg-yellow-50 border border-yellow-200"
+          >
+            <h3 class="text-xl font-bold mb-4 text-yellow-900">
+              Persamaan Kuadrat
+            </h3>
+            <p class="mb-4 text-sm text-yellow-800">
+              Bentuk umum: $ax^2 + bx + c = 0$
+            </p>
+
+            <div
+              class="bg-white p-6 rounded-lg shadow-sm border border-yellow-300 text-center"
+            >
+              <h4 class="font-bold text-gray-800 mb-2">
+                Rumus ABC (Penyelamat)
+              </h4>
+              <p class="text-sm text-gray-500 mb-4">
+                Gunakan jika sulit difaktorkan
+              </p>
+              <div class="text-2xl font-bold text-gray-900 overflow-x-auto">
+                $$x_{1,2} = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}$$
+              </div>
+            </div>
+          </section>
+
+          <section id="pers-taksama" class="content-section">
+            <h3 class="text-xl font-bold mb-4">Sifat Pertidaksamaan</h3>
+            <div class="grid md:grid-cols-2 gap-4">
+              <div class="p-4 border rounded bg-white hover:bg-gray-50">
+                <strong class="block text-red-600 mb-1">Tanda Tetap</strong>
+                <ul class="list-disc pl-5 text-sm text-gray-700">
+                  <li>Jika ditambah/dikurang bilangan positif/negatif.</li>
+                  <li>Jika dikali/dibagi bilangan <strong>POSITIF</strong>.</li>
+                </ul>
+              </div>
+              <div class="p-4 border rounded bg-white hover:bg-gray-50">
+                <strong class="block text-red-600 mb-1"
+                  >Tanda Berbalik (< jadi >)</strong
+                >
+                <ul class="list-disc pl-5 text-sm text-gray-700">
+                  <li>
+                    Jika dikali atau dibagi dengan bilangan
+                    <strong>NEGATIF</strong>.
+                  </li>
+                  <li>$a \times (-c) < b \times (-c)$ (jika $a > b$)</li>
+                </ul>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- ========================= MODUL 4: STATISTIKA ========================= -->
+        <div id="content-statistika" class="tab-content hidden">
+          <div class="mb-8 text-center">
+            <span
+              class="bg-purple-100 text-purple-800 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide"
+              >TIU 4</span
+            >
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mt-2 mb-4">
+              Statistika Dasar
+            </h2>
+          </div>
+
+          <div class="grid md:grid-cols-3 gap-6">
+            <!-- Mean -->
+            <div
+              class="bg-white p-6 rounded-xl shadow-lg border-t-4 border-purple-500 transform hover:-translate-y-1 transition duration-300"
+            >
+              <div class="text-center">
+                <div
+                  class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4"
+                >
+                  <span class="text-xl font-bold text-purple-600">x̄</span>
+                </div>
+                <h3 class="text-xl font-bold text-gray-800 mb-2">Mean</h3>
+                <p class="text-sm text-gray-500 mb-4">Rata-rata Hitung</p>
+                <div class="bg-gray-50 p-2 rounded">
+                  $$\bar{x} = \frac{\sum x}{n}$$
+                </div>
+                <p class="text-xs text-gray-400 mt-2">
+                  Jumlah data dibagi banyak data
+                </p>
+              </div>
+            </div>
+
+            <!-- Median -->
+            <div
+              class="bg-white p-6 rounded-xl shadow-lg border-t-4 border-pink-500 transform hover:-translate-y-1 transition duration-300"
+            >
+              <div class="text-center">
+                <div
+                  class="w-12 h-12 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-4"
+                >
+                  <span class="text-xl font-bold text-pink-600">Me</span>
+                </div>
+                <h3 class="text-xl font-bold text-gray-800 mb-2">Median</h3>
+                <p class="text-sm text-gray-500 mb-4">
+                  Nilai Tengah (Data Urut)
+                </p>
+                <div class="text-xs text-left space-y-2 bg-gray-50 p-2 rounded">
+                  <div><strong>Ganjil:</strong> Data ke-$(n+1)/2$</div>
+                  <div><strong>Genap:</strong> Rata-rata dua data tengah</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Modus -->
+            <div
+              class="bg-white p-6 rounded-xl shadow-lg border-t-4 border-indigo-500 transform hover:-translate-y-1 transition duration-300"
+            >
+              <div class="text-center">
+                <div
+                  class="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4"
+                >
+                  <span class="text-xl font-bold text-indigo-600">Mo</span>
+                </div>
+                <h3 class="text-xl font-bold text-gray-800 mb-2">Modus</h3>
+                <p class="text-sm text-gray-500 mb-4">
+                  Nilai Paling Sering Muncul
+                </p>
+                <p class="text-xs text-gray-600">
+                  Bisa lebih dari satu nilai (Bimodal/Multimodal) atau tidak ada
+                  sama sekali.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========================= MODUL 5: JARAK & WAKTU ========================= -->
+        <div id="content-jarak" class="tab-content hidden">
+          <div class="mb-8 text-center">
+            <span
+              class="bg-orange-100 text-orange-800 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide"
+              >TIU 5</span
+            >
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mt-2 mb-4">
+              Jarak, Waktu, Kecepatan
+            </h2>
+          </div>
+
+          <section
+            id="jkw-rumus"
+            class="content-section flex flex-col items-center"
+          >
+            <h3 class="text-xl font-bold mb-6">Segitiga JKW</h3>
+            <!-- Visual Triangle -->
+            <div class="relative w-64 h-64">
+              <div
+                class="absolute inset-0 bg-white border-4 border-gray-800 clip-triangle flex flex-col items-center pt-8"
+              >
+                <!-- Top -->
+                <div class="text-4xl font-bold text-orange-600 mb-8">s</div>
+                <!-- Divider Line -->
+                <div class="w-full h-1 bg-gray-800 absolute top-1/2"></div>
+                <div
+                  class="h-1/2 w-1 bg-gray-800 absolute bottom-0 left-1/2"
+                ></div>
+                <!-- Bottom -->
+                <div class="flex justify-between w-full px-10 mt-6">
+                  <div class="text-4xl font-bold text-blue-600">v</div>
+                  <div class="text-4xl font-bold text-green-600">t</div>
+                </div>
+              </div>
+            </div>
+            <div class="mt-8 grid grid-cols-3 gap-4 w-full text-center">
+              <div class="p-3 bg-orange-50 rounded border border-orange-200">
+                <strong class="text-orange-700">Jarak (s)</strong>
+                <div class="text-lg">$$v \times t$$</div>
+              </div>
+              <div class="p-3 bg-blue-50 rounded border border-blue-200">
+                <strong class="text-blue-700">Kecepatan (v)</strong>
+                <div class="text-lg">$$s / t$$</div>
+              </div>
+              <div class="p-3 bg-green-50 rounded border border-green-200">
+                <strong class="text-green-700">Waktu (t)</strong>
+                <div class="text-lg">$$s / v$$</div>
+              </div>
+            </div>
+            <style>
+              .clip-triangle {
+                clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+              }
+            </style>
+          </section>
+
+          <section id="jkw-variasi" class="content-section">
+            <h3 class="text-xl font-bold mb-4">Kasus Khusus</h3>
+
+            <div
+              class="accordion-item border border-gray-200 rounded-lg bg-white overflow-hidden mb-2"
+            >
+              <button
+                class="w-full text-left p-4 bg-gray-50 font-semibold text-gray-800 flex justify-between items-center"
+                onclick="toggleAccordion(this)"
+              >
+                <span>⏱️ Waktu Menyusul (Arah Sama)</span>
+                <i
+                  data-lucide="chevron-down"
+                  class="accordion-icon w-5 h-5"
+                ></i>
+              </button>
+              <div class="accordion-content px-5 bg-white text-gray-700">
+                <p class="py-2">
+                  Digunakan jika A dan B berangkat searah tapi berbeda waktu.
+                </p>
+                <div class="formula-box">
+                  $$t_{susul} = \frac{v_1 \times \Delta t}{v_2 - v_1}$$
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="accordion-item border border-gray-200 rounded-lg bg-white overflow-hidden"
+            >
+              <button
+                class="w-full text-left p-4 bg-gray-50 font-semibold text-gray-800 flex justify-between items-center"
+                onclick="toggleAccordion(this)"
+              >
+                <span>🤝 Waktu Berpapasan (Arah Berlawanan)</span>
+                <i
+                  data-lucide="chevron-down"
+                  class="accordion-icon w-5 h-5"
+                ></i>
+              </button>
+              <div class="accordion-content px-5 bg-white text-gray-700">
+                <p class="py-2">
+                  Digunakan jika A dan B bergerak saling mendekat.
+                </p>
+                <div class="formula-box">
+                  $$t_{papasan} = \frac{Jarak Total}{v_1 + v_2}$$
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- ========================= MODUL 6: HIMPUNAN ========================= -->
+        <div id="content-himpunan" class="tab-content hidden">
+          <div class="mb-8 text-center">
+            <span
+              class="bg-teal-100 text-teal-800 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide"
+              >TIU 6</span
+            >
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mt-2 mb-4">
+              Himpunan
+            </h2>
+          </div>
+
+          <div class="grid md:grid-cols-2 gap-6 mb-6">
+            <div class="content-section" id="him-jenis">
+              <h3 class="text-lg font-bold mb-3 border-b pb-2">
+                Jenis Himpunan
+              </h3>
+              <ul class="space-y-3 text-sm text-gray-700">
+                <li class="flex items-start gap-2">
+                  <span class="bg-teal-100 p-1 rounded">∅</span>
+                  <div>
+                    <strong>Himpunan Kosong:</strong> Tidak punya anggota.
+                  </div>
+                </li>
+                <li class="flex items-start gap-2">
+                  <span class="bg-teal-100 p-1 rounded">S</span>
+                  <div><strong>Semesta:</strong> Memuat semua objek.</div>
+                </li>
+                <li class="flex items-start gap-2">
+                  <span class="bg-teal-100 p-1 rounded">⊂</span>
+                  <div><strong>Bagian:</strong> Anggota A ada di B.</div>
+                </li>
+              </ul>
+            </div>
+
+            <div class="content-section" id="him-operasi">
+              <h3 class="text-lg font-bold mb-3 border-b pb-2">Operasi</h3>
+              <ul class="space-y-3 text-sm text-gray-700">
+                <li>
+                  <strong>Irisan ($\cap$):</strong> Anggota yang sama (A DAN B).
+                </li>
+                <li>
+                  <strong>Gabungan ($\cup$):</strong> Semua anggota digabung (A
+                  ATAU B).
+                </li>
+                <li><strong>Komplemen ($A^c$):</strong> Selain anggota A.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="content-section bg-teal-50 border-teal-200">
+            <h3 class="text-xl font-bold text-teal-900 mb-4">
+              Rumus Penting (Soal Cerita)
+            </h3>
+            <div class="grid gap-4">
+              <div class="bg-white p-4 rounded shadow-sm">
+                <strong class="block text-gray-800 mb-2"
+                  >2 Himpunan Beririsan</strong
+                >
+                <div class="text-lg overflow-x-auto">
+                  $$n(A \cup B) = n(A) + n(B) - n(A \cap B)$$
+                </div>
+              </div>
+              <div class="bg-white p-4 rounded shadow-sm">
+                <strong class="block text-gray-800 mb-2"
+                  >3 Himpunan Beririsan</strong
+                >
+                <div class="text-sm overflow-x-auto">
+                  $$n(A \cup B \cup C) = n(A) + n(B) + n(C) - n(A \cap B) - n(A
+                  \cap C) - n(B \cap C) + n(A \cap B \cap C)$$
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========================= MODUL 7: BARISAN ========================= -->
+        <div id="content-barisan" class="tab-content hidden">
+          <div class="mb-8 text-center">
+            <span
+              class="bg-red-100 text-red-800 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide"
+              >TIU 7</span
+            >
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mt-2 mb-4">
+              Barisan & Deret
+            </h2>
+          </div>
+
+          <div class="space-y-6">
+            <!-- Aritmatika -->
+            <div
+              id="bar-aritmatika"
+              class="bg-white rounded-xl shadow-md border-l-8 border-red-500 overflow-hidden"
+            >
+              <div class="p-6">
+                <h3 class="text-2xl font-bold text-gray-800 mb-2">
+                  Barisan Aritmatika
+                </h3>
+                <p class="text-gray-500 mb-4">
+                  Pola penambahan/pengurangan tetap (punya
+                  <strong>Beda/b</strong>)
+                </p>
+
+                <div class="grid md:grid-cols-2 gap-4">
+                  <div class="bg-red-50 p-4 rounded-lg">
+                    <strong class="block text-red-900 mb-2"
+                      >Suku ke-n ($U_n$)</strong
+                    >
+                    <div class="text-xl">$$U_n = a + (n-1)b$$</div>
+                  </div>
+                  <div class="bg-red-50 p-4 rounded-lg">
+                    <strong class="block text-red-900 mb-2"
+                      >Jumlah n suku ($S_n$)</strong
+                    >
+                    <div class="text-xl">$$S_n = \frac{n}{2}(a + U_n)$$</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Geometri -->
+            <div
+              id="bar-geometri"
+              class="bg-white rounded-xl shadow-md border-l-8 border-blue-500 overflow-hidden"
+            >
+              <div class="p-6">
+                <h3 class="text-2xl font-bold text-gray-800 mb-2">
+                  Barisan Geometri
+                </h3>
+                <p class="text-gray-500 mb-4">
+                  Pola perkalian/pembagian tetap (punya
+                  <strong>Rasio/r</strong>)
+                </p>
+
+                <div class="grid md:grid-cols-2 gap-4">
+                  <div class="bg-blue-50 p-4 rounded-lg">
+                    <strong class="block text-blue-900 mb-2"
+                      >Suku ke-n ($U_n$)</strong
+                    >
+                    <div class="text-xl">$$U_n = a \cdot r^{n-1}$$</div>
+                  </div>
+                  <div class="bg-blue-50 p-4 rounded-lg">
+                    <strong class="block text-blue-900 mb-2"
+                      >Jumlah n suku ($S_n$)</strong
+                    >
+                    <div class="text-xl">
+                      $$S_n = \frac{a(r^n - 1)}{r - 1}$$
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tips -->
+            <div class="bg-gray-800 text-white p-6 rounded-xl">
+              <h4 class="font-bold text-lg mb-3 flex items-center gap-2">
+                <i data-lucide="lightbulb" class="w-5 h-5 text-yellow-400"></i>
+                Tips Deret Angka
+              </h4>
+              <ul class="list-disc pl-5 space-y-2 text-gray-300 text-sm">
+                <li>
+                  <strong>Deret Larik:</strong> Cek pola loncat satu
+                  (ganjil/genap) jika angka naik-turun tidak beraturan.
+                </li>
+                <li>
+                  <strong>Deret Bertingkat:</strong> Hitung selisih antar angka,
+                  jika belum sama, hitung selisih dari selisih tersebut.
+                </li>
+                <li>
+                  <strong>Fibonacci:</strong> Angka ketiga adalah jumlah dua
+                  angka sebelumnya (1, 1, 2, 3, 5, 8...).
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <script>
+      // Initialize Lucide Icons
+      lucide.createIcons();
+
+      // --- Logic Tab Switching ---
+      function switchTab(tabId) {
+        // 1. Hide all content
+        const allContent = document.querySelectorAll(".tab-content");
+        allContent.forEach((content) => content.classList.remove("active"));
+
+        // 2. Hide all sidebar groups
+        const allSidebarGroups = document.querySelectorAll(".sidebar-group");
+        allSidebarGroups.forEach((group) => group.classList.add("hidden"));
+
+        // 3. Reset Button Styles
+        const allBtns = document.querySelectorAll(".nav-btn");
+        allBtns.forEach((btn) => {
+          btn.classList.remove("bg-blue-800", "text-white");
+          btn.classList.add("bg-white", "text-gray-600");
+        });
+
+        // 4. Activate Content & Sidebar
+        const activeContent = document.getElementById("content-" + tabId);
+        const activeSidebar = document.getElementById("sidebar-" + tabId);
+        const activeBtn = document.getElementById("btn-" + tabId);
+
+        if (activeContent) activeContent.classList.add("active");
+        if (activeSidebar) activeSidebar.classList.remove("hidden");
+        if (activeBtn) {
+          activeBtn.classList.remove("bg-white", "text-gray-600");
+          activeBtn.classList.add("bg-blue-800", "text-white");
+        }
+
+        // 5. Scroll to top
+        const mainScroll = document.getElementById("main-scroll");
+        if (mainScroll) mainScroll.scrollTop = 0;
+      }
+
+      // --- Accordion Logic ---
+      function toggleAccordion(button) {
+        const item = button.parentElement;
+        if (item.classList.contains("active")) {
+          item.classList.remove("active");
+        } else {
+          item.classList.add("active");
+        }
+      }
+
+      // --- Mobile Sidebar Logic ---
+      const menuBtn = document.getElementById("menuBtn");
+      const sidebar = document.getElementById("sidebar");
+      const overlay = document.getElementById("overlay");
+      const sidebarLinks = document.querySelectorAll(".sidebar-link");
+
+      function toggleSidebar() {
+        sidebar.classList.toggle("-translate-x-full");
+        overlay.classList.toggle("hidden");
+      }
+
+      if (menuBtn) {
+        menuBtn.addEventListener("click", toggleSidebar);
+        overlay.addEventListener("click", toggleSidebar);
+        // Close sidebar when link is clicked on mobile
+        sidebarLinks.forEach((link) => {
+          link.addEventListener("click", () => {
+            if (window.innerWidth < 768) toggleSidebar();
+          });
+        });
+      }
+
+      // --- Table Filter (Satuan) ---
+      function filterSatuan() {
+        const input = document.getElementById("searchSatuan");
+        const filter = input.value.toUpperCase();
+        const table = document.getElementById("tableSatuan");
+        const tr = table.getElementsByTagName("tr");
+        for (let i = 0; i < tr.length; i++) {
+          // Check columns: Satuan (index 1) and Kategori (index 0)
+          const tdSatuan = tr[i].getElementsByTagName("td")[1];
+          const tdKategori = tr[i].getElementsByTagName("td")[0];
+          if (tdSatuan || tdKategori) {
+            const txtValueS = tdSatuan.textContent || tdSatuan.innerText;
+            const txtValueK = tdKategori.textContent || tdKategori.innerText;
+            if (
+              txtValueS.toUpperCase().indexOf(filter) > -1 ||
+              txtValueK.toUpperCase().indexOf(filter) > -1
+            ) {
+              tr[i].style.display = "";
+            } else {
+              tr[i].style.display = "none";
+            }
+          }
+        }
+      }
+
+      // --- Init ---
+      // Load default tab
+      document.addEventListener("DOMContentLoaded", () => {
+        // If URL has hash, try to open that section
+        // Otherwise default to aritmatika
+        switchTab("aritmatika");
+      });
+    </script>
+  </body>
+</html>

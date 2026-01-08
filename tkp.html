@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>E-Modul TKP CPNS</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Merriweather:ital,wght@0,300;0,400;0,700;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* Base Styles */
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: #f0fdf4; /* Light Green Background */
+        color: #1e293b;
+      }
+      h1,
+      h2,
+      h3,
+      h4,
+      h5 {
+        font-family: "Merriweather", serif;
+      }
+
+      /* Layout Utilities */
+      .content-section {
+        background: white;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        border-radius: 0.75rem;
+        box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+        border: 1px solid #e2e8f0;
+        transition: transform 0.2s;
+      }
+      /* Sidebar Links */
+      .sidebar-link {
+        transition: all 0.2s;
+        border-left: 3px solid transparent;
+        display: block;
+        padding: 0.5rem 1.5rem;
+        font-size: 0.875rem;
+        color: #475569;
+        cursor: pointer;
+        text-decoration: none;
+      }
+      .sidebar-link:hover,
+      .sidebar-link.active {
+        background-color: #ecfdf5; /* Green-50 */
+        color: #047857; /* Emerald-700 */
+        border-left-color: #047857;
+        font-weight: 500;
+      }
+
+      /* Scrollbar */
+      aside::-webkit-scrollbar {
+        width: 5px;
+      }
+      aside::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      aside::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 3px;
+      }
+
+      /* Accordion Animation */
+      .accordion-content {
+        transition: max-height 0.3s ease-out, opacity 0.3s ease-out,
+          padding 0.3s ease;
+        max-height: 0;
+        overflow: hidden;
+        opacity: 0;
+      }
+      .accordion-item.active .accordion-content {
+        max-height: 800px;
+        opacity: 1;
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+      }
+      .accordion-icon {
+        transition: transform 0.3s;
+      }
+      .accordion-item.active .accordion-icon {
+        transform: rotate(180deg);
+      }
+
+      /* Static Info Card */
+      .info-card {
+        background: white;
+        border-radius: 0.75rem;
+        border: 1px solid #e2e8f0;
+        padding: 1.5rem;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05);
+        transition: transform 0.2s, box-shadow 0.2s;
+      }
+      .info-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+      }
+
+      /* Analysis Box Animation */
+      .analysis-box {
+        display: none;
+        animation: fadeIn 0.5s ease-out;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    </style>
+  </head>
+  <body class="flex flex-col md:flex-row min-h-screen text-sm md:text-base">
+    <!-- Mobile Header -->
+    <header
+      class="md:hidden bg-emerald-800 text-white p-4 sticky top-0 z-50 flex justify-between items-center shadow-md shrink-0"
+    >
+      <a href="index.html" class="inline-block">
+        <h1 class="text-lg font-bold flex items-center gap-2">
+          <i data-lucide="calculator" class="w-5 h-5"></i> Modul TIU
+        </h1>
+      </a>
+
+      <button
+        id="menuBtn"
+        class="p-2 focus:outline-none hover:bg-emerald-700 rounded"
+      >
+        <i data-lucide="menu" class="w-6 h-6"></i>
+      </button>
+    </header>
+
+    <!-- Sidebar Navigation -->
+    <aside
+      id="sidebar"
+      class="fixed inset-y-0 left-0 transform -translate-x-full md:translate-x-0 md:static md:w-72 bg-white border-r border-gray-200 z-40 transition-transform duration-300 ease-in-out flex flex-col h-screen shrink-0 shadow-xl md:shadow-none"
+    >
+      <div class="bg-white border-b border-gray-200 shadow-sm shrink-0">
+        <div
+          class="p-6 bg-gradient-to-br from-emerald-900 to-emerald-700 text-white"
+        >
+          <a href="index.html" class="inline-block">
+            <h1 class="text-lg font-bold flex items-center gap-2">
+              <i data-lucide="calculator" class="w-5 h-5"></i> Modul TKP
+            </h1>
+          </a>
+
+          <p class="text-emerald-100 text-xs mt-1">Kepribadian & Integritas</p>
+        </div>
+      </div>
+
+      <!-- Navigation Links -->
+      <div class="flex-1 overflow-y-auto py-4 bg-gray-50" id="sidebar-content">
+        <p
+          class="px-6 py-2 text-xs font-bold text-gray-400 uppercase tracking-wider"
+        >
+          Materi Dasar
+        </p>
+        <a href="#tkp-integritas" class="sidebar-link active"
+          >1. Integritas Diri (Tips)</a
+        >
+        <a href="#tkp-prestasi" class="sidebar-link">2. Semangat Berprestasi</a>
+        <a href="#tkp-kreativitas" class="sidebar-link"
+          >3. Kreativitas & Inovasi</a
+        >
+
+        <p
+          class="px-6 py-2 mt-4 text-xs font-bold text-gray-400 uppercase tracking-wider"
+        >
+          Sosial & Tim
+        </p>
+        <a href="#tkp-oranglain" class="sidebar-link"
+          >4. Orientasi Orang Lain</a
+        >
+        <a href="#tkp-pelayanan" class="sidebar-link">5. Orientasi Pelayanan</a>
+        <a href="#tkp-adaptasi" class="sidebar-link">8. Kemampuan Adaptasi</a>
+        <a href="#tkp-kerjasama" class="sidebar-link">9. Kerjasama Kelompok</a>
+        <a href="#tkp-pimpinan" class="sidebar-link"
+          >11. Kemampuan Menggerakkan</a
+        >
+
+        <p
+          class="px-6 py-2 mt-4 text-xs font-bold text-gray-400 uppercase tracking-wider"
+        >
+          Pengembangan Diri
+        </p>
+        <a href="#tkp-belajar" class="sidebar-link">6. Belajar Berkelanjutan</a>
+        <a href="#tkp-kendali" class="sidebar-link">7. Mengendalikan Diri</a>
+        <a href="#tkp-mandiri" class="sidebar-link">10. Bekerja Mandiri</a>
+
+        <p
+          class="px-6 py-2 mt-4 text-xs font-bold text-red-500 uppercase tracking-wider"
+        >
+          Isu Terkini (Penting!)
+        </p>
+        <a
+          href="#tkp-radikalisme"
+          class="sidebar-link text-red-600 font-semibold bg-red-50"
+          >12. Anti Radikalisme</a
+        >
+      </div>
+
+      <div
+        class="p-4 border-t border-gray-200 text-xs text-gray-500 text-center shrink-0"
+      >
+        &copy; 2024 Modul TKP CPNS
+      </div>
+    </aside>
+
+    <!-- Overlay for Mobile -->
+    <div
+      id="overlay"
+      class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden md:hidden transition-opacity"
+    ></div>
+
+    <!-- Main Content Area -->
+    <main
+      class="flex-1 p-4 md:p-8 lg:p-12 overflow-y-auto h-screen scroll-smooth bg-gray-50 relative"
+      id="main-scroll"
+    >
+      <div class="max-w-4xl mx-auto pb-20">
+        <div class="mb-8 text-center">
+          <span
+            class="bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide"
+            >Materi Inti</span
+          >
+          <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mt-2 mb-4">
+            Tes Karakteristik Pribadi
+          </h2>
+          <p class="text-gray-600 max-w-2xl mx-auto">
+            Pelajari aspek-aspek penilaian karakter calon ASN. Kunci jawaban TKP
+            bukanlah benar/salah, melainkan nilai skala 1-5. Pilihlah jawaban
+            yang menunjukkan kedewasaan dan profesionalisme.
+          </p>
+        </div>
+
+        <!-- TKP 1: INTEGRITAS -->
+        <section
+          id="tkp-integritas"
+          class="content-section border-t-4 border-emerald-600 bg-emerald-50"
+        >
+          <div class="flex items-start gap-4">
+            <div class="p-3 bg-white rounded-full shadow-sm text-emerald-600">
+              <i data-lucide="shield-check" class="w-8 h-8"></i>
+            </div>
+            <div>
+              <h3 class="text-2xl font-bold text-gray-800 mb-2">
+                1. Integritas Diri
+              </h3>
+              <p class="text-gray-700 font-medium">Tips Mengerjakan:</p>
+              <p class="text-gray-600 mb-4 leading-relaxed">
+                Jawablah pertanyaan sesuai dengan diri Anda sendiri. Seringkali
+                terdapat soal "jebakan" dengan pertanyaan yang mirip di nomor
+                yang berbeda. Jika jawaban Anda tidak konsisten, integritas Anda
+                akan diragukan.
+              </p>
+              <div
+                class="bg-white p-4 rounded-lg border border-emerald-200 text-sm text-emerald-800 flex items-center gap-2"
+              >
+                <i data-lucide="info" class="w-5 h-5"></i>
+                <span
+                  ><strong>Kunci:</strong> Konsistensi & Kejujuran adalah poin
+                  utama.</span
+                >
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- GRID LAYOUT FOR TKP 2 & 3 -->
+        <div class="grid md:grid-cols-2 gap-6 mb-8">
+          <!-- TKP 2: PRESTASI -->
+          <section
+            id="tkp-prestasi"
+            class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex flex-col h-full"
+          >
+            <div class="flex items-center gap-3 mb-4">
+              <div class="p-2 bg-blue-100 rounded text-blue-600">
+                <i data-lucide="trophy" class="w-6 h-6"></i>
+              </div>
+              <h3 class="text-xl font-bold text-gray-800">
+                2. Semangat Berprestasi
+              </h3>
+            </div>
+            <p class="text-sm text-gray-600 mb-4 flex-grow">
+              Menilai apakah peserta memiliki jiwa bersaing sehat, semangat
+              bekerja, atau hanya sekedar jalan di tempat.
+            </p>
+
+            <!-- Interactive Case Study -->
+            <div class="border rounded-lg p-4 bg-gray-50">
+              <strong class="text-gray-700 block mb-2 text-sm"
+                >Contoh Situasi:</strong
+              >
+              <p class="text-sm text-gray-600 italic mb-3">
+                "Di kantor ada reward tahunan untuk pegawai berprestasi, tetapi
+                tahun ini saya tidak mendapatkannya."
+              </p>
+              <button
+                onclick="toggleAnalysis('analisis-2')"
+                class="text-xs font-bold text-blue-600 hover:underline flex items-center gap-1"
+              >
+                <i data-lucide="eye" class="w-3 h-3"></i> Lihat Poin Penilaian
+              </button>
+              <div
+                id="analisis-2"
+                class="analysis-box mt-3 pt-3 border-t border-gray-200 text-xs text-blue-800 bg-blue-50 p-2 rounded"
+              >
+                <strong>Respon Terbaik:</strong> Menjadikan kegagalan sebagai
+                motivasi untuk memperbaiki kinerja di tahun depan (Introspeksi &
+                Semangat Maju). Jangan kecewa berlebihan.
+              </div>
+            </div>
+          </section>
+
+          <!-- TKP 3: KREATIVITAS -->
+          <section
+            id="tkp-kreativitas"
+            class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex flex-col h-full"
+          >
+            <div class="flex items-center gap-3 mb-4">
+              <div class="p-2 bg-yellow-100 rounded text-yellow-600">
+                <i data-lucide="lightbulb" class="w-6 h-6"></i>
+              </div>
+              <h3 class="text-xl font-bold text-gray-800">
+                3. Kreativitas & Inovasi
+              </h3>
+            </div>
+            <p class="text-sm text-gray-600 mb-4 flex-grow">
+              Kemampuan membuat terobosan positif. Seberapa unik dan efektif
+              cara Anda menyelesaikan pekerjaan.
+            </p>
+
+            <!-- Interactive Case Study -->
+            <div class="border rounded-lg p-4 bg-gray-50">
+              <strong class="text-gray-700 block mb-2 text-sm"
+                >Contoh Situasi:</strong
+              >
+              <p class="text-sm text-gray-600 italic mb-3">
+                "Saya biasanya melakukan pekerjaan dengan cara yang baru dan
+                tidak terpikirkan oleh rekan lain."
+              </p>
+              <button
+                onclick="toggleAnalysis('analisis-3')"
+                class="text-xs font-bold text-yellow-600 hover:underline flex items-center gap-1"
+              >
+                <i data-lucide="eye" class="w-3 h-3"></i> Lihat Poin Penilaian
+              </button>
+              <div
+                id="analisis-3"
+                class="analysis-box mt-3 pt-3 border-t border-gray-200 text-xs text-yellow-800 bg-yellow-50 p-2 rounded"
+              >
+                <strong>Respon Terbaik:</strong> Konsisten melakukan inovasi
+                yang <em>efektif</em> dan <em>efisien</em>. Inovasi bukan
+                sekedar beda, tapi harus memberi hasil lebih baik.
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- TKP 4: ORIENTASI ORANG LAIN -->
+        <section id="tkp-oranglain" class="content-section">
+          <div class="flex flex-col md:flex-row gap-6 items-stretch">
+            <div class="md:w-1/3">
+              <!-- Static Card (Previously Flip Card) -->
+              <div class="info-card border-rose-200 bg-rose-50/50">
+                <div class="bg-rose-100 p-4 rounded-full mb-4">
+                  <i data-lucide="heart" class="text-rose-600 w-8 h-8"></i>
+                </div>
+                <h4 class="font-bold text-rose-900 text-lg mb-2">
+                  Orientasi Pada Orang Lain
+                </h4>
+                <div class="w-10 h-1 bg-rose-200 mb-4 rounded-full"></div>
+                <p class="text-sm text-gray-600 leading-relaxed">
+                  Menilai tingkat empati dan kepedulian Anda. Fokus pada
+                  seberapa besar pengorbanan yang berani Anda lakukan untuk
+                  membantu rekan dalam kesulitan.
+                </p>
+              </div>
+            </div>
+            <div class="md:w-2/3">
+              <div
+                class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm h-full flex flex-col justify-center"
+              >
+                <h4
+                  class="font-bold text-gray-800 flex items-center gap-2 mb-4 border-b pb-2"
+                >
+                  <i data-lucide="activity" class="w-5 h-5 text-rose-500"></i>
+                  Studi Kasus
+                </h4>
+                <div class="mb-4">
+                  <span
+                    class="text-xs font-bold text-gray-400 uppercase tracking-wider"
+                    >Situasi</span
+                  >
+                  <p class="text-gray-700 italic mt-1">
+                    "Teman saya baru saja kecelakaan dan membutuhkan uang untuk
+                    perawatan dan penyembuhan lukanya."
+                  </p>
+                </div>
+                <div class="bg-rose-50 p-4 rounded-lg border border-rose-100">
+                  <strong class="text-rose-800 text-sm block mb-1"
+                    >Tindakan Ideal:</strong
+                  >
+                  <p class="text-sm text-gray-700">
+                    Menunjukkan aksi nyata kepedulian. Tidak sekedar merasa
+                    kasihan (simpati), tetapi memberikan bantuan konkret (misal:
+                    donasi, menggalang dana, atau menjenguk) sesuai kemampuan
+                    tanpa pamrih.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- TKP 5: PELAYANAN -->
+        <section
+          id="tkp-pelayanan"
+          class="content-section bg-gradient-to-r from-emerald-50 to-white"
+        >
+          <h3
+            class="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2"
+          >
+            <i data-lucide="smile" class="w-6 h-6 text-emerald-600"></i> 5.
+            Orientasi Pelayanan
+          </h3>
+          <p class="text-gray-600 mb-4">
+            Sebagai calon CPNS/ASN, tugas utama adalah melayani masyarakat. Soal
+            ini menguji prioritas Anda antara tugas administrasi vs pelayanan
+            publik.
+          </p>
+
+          <div
+            class="accordion-item border border-emerald-200 rounded-lg bg-white overflow-hidden shadow-sm"
+          >
+            <button
+              class="w-full text-left p-4 bg-white hover:bg-emerald-50 font-semibold text-gray-800 flex justify-between items-center"
+              onclick="toggleAccordion(this)"
+            >
+              <span class="flex items-center gap-2">
+                <i
+                  data-lucide="help-circle"
+                  class="w-4 h-4 text-emerald-500"
+                ></i>
+                Contoh Situasi: Tamu vs Deadline
+              </span>
+              <i
+                data-lucide="chevron-down"
+                class="accordion-icon w-5 h-5 text-gray-400"
+              ></i>
+            </button>
+            <div class="accordion-content px-5 bg-emerald-50/50 text-gray-700">
+              <div class="py-4 space-y-3">
+                <p class="italic text-gray-600">
+                  "Saat mengerjakan tugas atasan yang mendesak, tiba-tiba tamu
+                  datang meminta petunjuk meja rekan kerja yang jauh letaknya."
+                </p>
+                <div class="p-3 bg-white rounded border border-emerald-100">
+                  <strong class="text-emerald-800 text-sm"
+                    >Jawaban Skala Tertinggi:</strong
+                  >
+                  <p class="text-sm mt-1">
+                    Melayani tamu tersebut dengan ramah, mungkin dengan memberi
+                    petunjuk jelas atau mengantar sebentar (jika memungkinkan),
+                    lalu kembali bekerja. Pelayanan publik adalah prioritas
+                    utama ASN. Jangan mengabaikan tamu.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- TKP 6: BELAJAR -->
+        <section id="tkp-belajar" class="content-section">
+          <h3
+            class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2"
+          >
+            <i data-lucide="book-open" class="w-6 h-6 text-purple-600"></i> 6.
+            Belajar Berkelanjutan
+          </h3>
+          <div
+            class="bg-purple-50 p-4 rounded-lg border border-purple-100 mb-4"
+          >
+            <p class="text-sm text-purple-900 font-medium">
+              Penilaian: Kemauan meningkatkan kualitas diri melalui
+              pendidikan/pelatihan meskipun ada hambatan.
+            </p>
+          </div>
+          <div class="grid md:grid-cols-2 gap-4">
+            <div class="bg-white p-4 border rounded shadow-sm">
+              <strong class="block text-gray-700 text-sm mb-2">Situasi:</strong>
+              <p class="text-sm text-gray-600 italic">
+                "Ada pendaftaran beasiswa luar negeri, tapi kriteria kurang
+                sesuai dengan diri saya."
+              </p>
+            </div>
+            <div
+              class="bg-white p-4 border rounded shadow-sm relative overflow-hidden"
+            >
+              <div
+                class="absolute left-0 top-0 bottom-0 w-1 bg-purple-500"
+              ></div>
+              <strong class="block text-purple-700 text-sm mb-2"
+                >Sikap Positif:</strong
+              >
+              <p class="text-sm text-gray-600">
+                Tetap berusaha. Mencoba memenuhi kriteria tersebut atau mencari
+                peluang lain untuk upgrade diri. Jangan menyerah sebelum
+                mencoba.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- TKP 7: PENGENDALIAN DIRI -->
+        <section id="tkp-kendali" class="content-section">
+          <div class="flex flex-col md:flex-row-reverse gap-6 items-center">
+            <div class="md:w-1/3 text-center">
+              <div class="inline-block p-4 bg-orange-100 rounded-full mb-3">
+                <i data-lucide="zap-off" class="w-10 h-10 text-orange-600"></i>
+              </div>
+              <h4 class="font-bold text-gray-800">7. Pengendalian Diri</h4>
+            </div>
+            <div class="md:w-2/3">
+              <p class="text-gray-600 mb-4">
+                Bagaimana reaksi Anda saat situasi tidak menguntungkan? Peserta
+                diharapkan tetap tenang dan profesional.
+              </p>
+              <div class="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                <strong class="text-orange-900 text-sm block mb-1"
+                  >Kasus: Dimarahi Atasan</strong
+                >
+                <p class="text-sm text-gray-700 italic mb-3">
+                  "Terlambat karena perbaikan jalan, sampai kantor dimarahi
+                  atasan."
+                </p>
+                <div class="flex gap-2 text-xs">
+                  <span
+                    class="bg-white px-2 py-1 rounded border shadow-sm text-gray-400 line-through"
+                    >Marah balik</span
+                  >
+                  <span
+                    class="bg-white px-2 py-1 rounded border shadow-sm text-gray-400 line-through"
+                    >Mencari alasan</span
+                  >
+                  <span
+                    class="bg-emerald-100 text-emerald-800 px-2 py-1 rounded border border-emerald-200 shadow-sm font-bold"
+                    >✅ Minta maaf & Jelaskan</span
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- TKP 8: ADAPTASI -->
+        <section id="tkp-adaptasi" class="content-section">
+          <h3
+            class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2"
+          >
+            <i data-lucide="refresh-ccw" class="w-6 h-6 text-indigo-600"></i> 8.
+            Kemampuan Beradaptasi
+          </h3>
+          <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
+            <p class="text-sm text-gray-600 mb-4">
+              Menguji ketahanan menghadapi lingkungan baru, sistem baru, atau
+              rekan kerja baru.
+            </p>
+            <div class="flex items-start gap-4 p-4 bg-indigo-50 rounded-lg">
+              <i data-lucide="map-pin" class="w-5 h-5 text-indigo-500 mt-1"></i>
+              <div>
+                <strong class="text-indigo-900 text-sm block"
+                  >Situasi: Rekreasi Kantor</strong
+                >
+                <p class="text-sm text-gray-700 italic mb-2">
+                  "Hari minggu esok akan diadakan rekreasi pegawai untuk saling
+                  mengenal."
+                </p>
+                <p
+                  class="text-xs text-indigo-800 bg-white p-2 rounded border border-indigo-100 inline-block"
+                >
+                  <strong>Poin Plus:</strong> Antusiasme untuk berbaur. Ikut
+                  serta untuk mengenal rekan kerja (adaptasi sosial) lebih baik
+                  daripada menolak karena alasan pribadi.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- TKP 9: KERJASAMA -->
+        <section id="tkp-kerjasama" class="content-section">
+          <h3
+            class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2"
+          >
+            <i data-lucide="users" class="w-6 h-6 text-teal-600"></i> 9.
+            Kerjasama Kelompok
+          </h3>
+
+          <div class="grid md:grid-cols-2 gap-6 items-stretch">
+            <!-- Static Card (Previously Flip Card) -->
+            <div class="info-card border-teal-200 bg-teal-50/50">
+              <div class="flex items-center gap-3 mb-3">
+                <div class="bg-teal-100 p-2 rounded-full">
+                  <i data-lucide="frown" class="w-5 h-5 text-teal-700"></i>
+                </div>
+                <h4 class="font-bold text-teal-900">Masalah Personal</h4>
+              </div>
+              <p class="text-sm text-gray-600 mb-4 text-center">
+                "Bagaimana jika harus bekerja satu kelompok dengan orang yang
+                Anda benci?"
+              </p>
+              <div
+                class="bg-white p-4 rounded-lg border border-teal-200 w-full text-left"
+              >
+                <strong class="block mb-1 text-teal-900 text-sm"
+                  >Sikap Profesional</strong
+                >
+                <p class="text-xs text-gray-600">
+                  Kesampingkan masalah pribadi. Fokus pada tujuan kelompok. Ego
+                  pribadi tidak boleh menghambat kinerja.
+                </p>
+              </div>
+            </div>
+
+            <div
+              class="flex flex-col justify-center text-sm text-gray-600 p-4 border rounded-xl bg-gray-50"
+            >
+              <h4 class="font-bold text-gray-800 mb-2">Penting Diingat:</h4>
+              <p class="mb-3">
+                Perusahaan (Negeri/Swasta) sangat mengutamakan hasil tim.
+              </p>
+              <ul class="list-disc pl-5 space-y-2">
+                <li>Selalu jujur pada diri sendiri.</li>
+                <li>Adaptasikan diri pada konteks soal.</li>
+                <li>Utamakan kepentingan bersama di atas pribadi.</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <!-- TKP 10 & 11 Combined -->
+        <div class="grid md:grid-cols-2 gap-6">
+          <!-- TKP 10: MANDIRI -->
+          <section
+            id="tkp-mandiri"
+            class="bg-white p-6 rounded-xl border-l-4 border-cyan-500 shadow-sm"
+          >
+            <div class="flex items-center gap-2 mb-3">
+              <i data-lucide="user" class="w-5 h-5 text-cyan-600"></i>
+              <h3 class="font-bold text-gray-800">10. Mandiri & Tuntas</h3>
+            </div>
+            <p class="text-xs text-gray-500 mb-3">
+              Kecakapan bekerja tanpa bergantung orang lain.
+            </p>
+            <div class="bg-cyan-50 p-3 rounded text-sm text-gray-700">
+              <p class="italic mb-2">
+                "Rekan kerja baru sembuh sakit, pusing, padahal ada deadline."
+              </p>
+              <hr class="border-cyan-200 my-2" />
+              <p class="text-xs text-cyan-800">
+                <strong>Sikap:</strong> Tawarkan bantuan jika pekerjaan Anda
+                sendiri sudah aman, atau kerjakan bagian Anda dengan tuntas agar
+                tidak membebani tim. Empati tetap ada, tapi target kerja harus
+                tercapai.
+              </p>
+            </div>
+          </section>
+
+          <!-- TKP 11: MENGGERAKKAN -->
+          <section
+            id="tkp-pimpinan"
+            class="bg-white p-6 rounded-xl border-l-4 border-slate-700 shadow-sm"
+          >
+            <div class="flex items-center gap-2 mb-3">
+              <i data-lucide="gavel" class="w-5 h-5 text-slate-700"></i>
+              <h3 class="font-bold text-gray-800">11. Leadership</h3>
+            </div>
+            <p class="text-xs text-gray-500 mb-3">
+              Kemampuan mengkoordinir orang lain secara bijak.
+            </p>
+            <div class="bg-gray-100 p-3 rounded text-sm text-gray-700">
+              <p class="italic mb-2">
+                "Anak buah selalu bermasalah memenuhi deadline."
+              </p>
+              <hr class="border-gray-300 my-2" />
+              <p class="text-xs text-slate-800">
+                <strong>Sikap:</strong> Panggil secara personal, cari akar
+                masalahnya (apakah tidak mampu atau malas), berikan
+                arahan/bimbingan, lalu berikan peringatan tegas jika perlu.
+                Pemimpin harus solutif namun tegas.
+              </p>
+            </div>
+          </section>
+        </div>
+
+        <!-- ========================= MATERI BARU: ANTI RADIKALISME ========================= -->
+        <section
+          id="tkp-radikalisme"
+          class="content-section border-t-4 border-red-600 shadow-lg relative overflow-hidden"
+        >
+          <div class="absolute right-0 top-0 p-4 opacity-5">
+            <i data-lucide="alert-triangle" class="w-48 h-48 text-red-900"></i>
+          </div>
+
+          <div class="relative z-10">
+            <div class="flex items-center gap-3 mb-6">
+              <div class="p-3 bg-red-100 rounded-full text-red-700">
+                <i data-lucide="shield-alert" class="w-8 h-8"></i>
+              </div>
+              <div>
+                <span
+                  class="bg-red-100 text-red-800 text-xs font-bold px-2 py-1 rounded uppercase tracking-wide"
+                  >Materi Krusial</span
+                >
+                <h2 class="text-3xl font-bold text-gray-900">
+                  12. Anti Radikalisme
+                </h2>
+              </div>
+            </div>
+
+            <!-- Pengertian -->
+            <div
+              class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm mb-6"
+            >
+              <h3
+                class="text-lg font-bold text-gray-800 mb-3 flex items-center gap-2"
+              >
+                <i data-lucide="book" class="w-5 h-5 text-gray-500"></i>
+                Pengertian & Tujuan
+              </h3>
+              <p class="text-gray-700 leading-relaxed mb-4">
+                <strong>Anti Radikalisme</strong> adalah gerakan anti kekerasan
+                yang berlandaskan sila-sila Pancasila, menentang radikalisme
+                atau gerakan perpecahan bangsa. Tes ini bertujuan menjaring
+                informasi tentang pengetahuan, sikap, dan tindakan Anda terhadap
+                paham ekstrem.
+              </p>
+              <div class="bg-red-50 p-4 rounded-lg border-l-4 border-red-500">
+                <strong class="block text-red-800 mb-1"
+                  >Definisi Radikalisme:</strong
+                >
+                <p class="text-sm text-gray-700 italic">
+                  Ideologi atau gagasan yang ingin melakukan perubahan sistem
+                  sosial/politik dengan cara-cara ekstrem/kekerasan, drastis,
+                  dan bertentangan dengan sistem yang berlaku (umumnya
+                  anti-Pancasila & NKRI).
+                </p>
+              </div>
+            </div>
+
+            <!-- Ciri-Ciri Grid -->
+            <h3 class="text-xl font-bold text-gray-800 mb-4">
+              Ciri-Ciri Paham Radikalisme
+            </h3>
+            <div class="grid md:grid-cols-2 gap-4 mb-8">
+              <div
+                class="bg-white border rounded-lg p-4 flex items-start gap-3 hover:shadow-md transition"
+              >
+                <i data-lucide="x-circle" class="w-5 h-5 text-red-500 mt-1"></i>
+                <p class="text-sm text-gray-700">
+                  Menuntut perubahan drastis dengan cara kekerasan/ekstrem.
+                </p>
+              </div>
+              <div
+                class="bg-white border rounded-lg p-4 flex items-start gap-3 hover:shadow-md transition"
+              >
+                <i data-lucide="x-circle" class="w-5 h-5 text-red-500 mt-1"></i>
+                <p class="text-sm text-gray-700">
+                  Intoleran & menganggap pihak yang berbeda pandangan adalah
+                  salah/sesat.
+                </p>
+              </div>
+              <div
+                class="bg-white border rounded-lg p-4 flex items-start gap-3 hover:shadow-md transition"
+              >
+                <i data-lucide="x-circle" class="w-5 h-5 text-red-500 mt-1"></i>
+                <p class="text-sm text-gray-700">
+                  Fanatik berlebihan terhadap ide/kelompoknya sendiri
+                  (eksklusif).
+                </p>
+              </div>
+              <div
+                class="bg-white border rounded-lg p-4 flex items-start gap-3 hover:shadow-md transition"
+              >
+                <i data-lucide="x-circle" class="w-5 h-5 text-red-500 mt-1"></i>
+                <p class="text-sm text-gray-700">
+                  Anti Pancasila, Anti NKRI, dan berpotensi menyebabkan
+                  disintegrasi bangsa.
+                </p>
+              </div>
+            </div>
+
+            <!-- 11 Pelanggaran ASN -->
+            <div class="bg-gray-900 text-white rounded-xl p-6 md:p-8 mb-8">
+              <div
+                class="flex items-center gap-3 mb-6 border-b border-gray-700 pb-4"
+              >
+                <i data-lucide="alert-octagon" class="w-8 h-8 text-red-500"></i>
+                <h3 class="text-xl font-bold">
+                  11 Jenis Pelanggaran Radikalisme ASN
+                </h3>
+              </div>
+              <p class="text-gray-400 text-sm mb-4">
+                Berdasarkan SKB 11 Kementerian/Lembaga, hindari tindakan
+                berikut:
+              </p>
+
+              <div class="grid md:grid-cols-2 gap-x-8 gap-y-3 text-sm">
+                <div class="flex gap-2">
+                  <span class="text-red-500 font-bold">1.</span>
+                  <p>
+                    Ujaran kebencian terhadap Pancasila, UUD 45, NKRI, &
+                    Pemerintah (Teks/Video/Audio).
+                  </p>
+                </div>
+                <div class="flex gap-2">
+                  <span class="text-red-500 font-bold">2.</span>
+                  <p>
+                    Ujaran kebencian terhadap SARA (Suku, Agama, Ras,
+                    Antargolongan).
+                  </p>
+                </div>
+                <div class="flex gap-2">
+                  <span class="text-red-500 font-bold">3.</span>
+                  <p>
+                    Menyebarluaskan (Share/Broadcast) konten ujaran
+                    kebencian/radikal.
+                  </p>
+                </div>
+                <div class="flex gap-2">
+                  <span class="text-red-500 font-bold">4.</span>
+                  <p>
+                    Memberikan dukungan (Like, Comment, Retweet) pada konten
+                    radikal/benci.
+                  </p>
+                </div>
+                <div class="flex gap-2">
+                  <span class="text-red-500 font-bold">5.</span>
+                  <p>Membuat pemberitaan menyesatkan (Hoax).</p>
+                </div>
+                <div class="flex gap-2">
+                  <span class="text-red-500 font-bold">6.</span>
+                  <p>Menyebarluaskan pemberitaan menyesatkan.</p>
+                </div>
+                <div class="flex gap-2">
+                  <span class="text-red-500 font-bold">7.</span>
+                  <p>
+                    Mengadakan kegiatan yang memprovokasi/menghasut benci
+                    Negara.
+                  </p>
+                </div>
+                <div class="flex gap-2">
+                  <span class="text-red-500 font-bold">8.</span>
+                  <p>
+                    Mengikuti/afiliasi organisasi terlarang atau yang memusuhi
+                    Negara.
+                  </p>
+                </div>
+                <div class="flex gap-2">
+                  <span class="text-red-500 font-bold">9.</span>
+                  <p>Menggunakan atribut yang bertentangan dengan Pancasila.</p>
+                </div>
+                <div class="flex gap-2">
+                  <span class="text-red-500 font-bold">10.</span>
+                  <p>Pelecehan terhadap simbol Negara.</p>
+                </div>
+                <div class="flex gap-2">
+                  <span class="text-red-500 font-bold">11.</span>
+                  <p>Melakukan perbuatan di atas secara sadar.</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Contoh Soal Interaktif -->
+            <h3 class="text-xl font-bold text-gray-800 mb-4">
+              Studi Kasus & Pembahasan
+            </h3>
+
+            <div class="space-y-4">
+              <!-- Soal 1 -->
+              <div
+                class="accordion-item border border-gray-200 rounded-lg bg-white overflow-hidden"
+              >
+                <button
+                  class="w-full text-left p-4 bg-white hover:bg-gray-50 font-semibold text-gray-800 flex justify-between items-start gap-4"
+                  onclick="toggleAccordion(this)"
+                >
+                  <div>
+                    <span
+                      class="bg-red-100 text-red-800 text-xs px-2 py-1 rounded mb-2 inline-block"
+                      >Kasus 1: Pendidikan Anak</span
+                    >
+                    <p class="text-sm font-normal text-gray-600 mt-1">
+                      "Anda memasukkan anak ke lembaga pendidikan agama, namun
+                      ternyata lembaga tersebut
+                      <strong>menolak penghormatan bendera</strong> dan lagu
+                      Indonesia Raya. Sikap Anda?"
+                    </p>
+                  </div>
+                  <i
+                    data-lucide="chevron-down"
+                    class="accordion-icon w-5 h-5 text-gray-400 mt-1"
+                  ></i>
+                </button>
+                <div
+                  class="accordion-content px-5 bg-gray-50 text-gray-700 text-sm"
+                >
+                  <div class="py-4">
+                    <div class="mb-3">
+                      <strong>Tindakan Terbaik (Skala 5):</strong><br />
+                      Mencoba menegur pihak sekolah bahwa tindakan tersebut
+                      mengarah ke radikalisme, dan memutuskan untuk
+                      <strong>menolak sekolah di sana (memindahkan anak)</strong
+                      >.
+                    </div>
+                    <div class="bg-white p-3 rounded border border-gray-200">
+                      <strong>Pembahasan:</strong><br />
+                      Nasionalisme (Pancasila) dan Agama harus berjalan
+                      seimbang. Menolak simbol negara (Bendera/Lagu) adalah
+                      indikator awal radikalisme. Anda harus tegas menolak
+                      lingkungan yang memaparkan paham tersebut kepada keluarga.
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Soal 2 -->
+              <div
+                class="accordion-item border border-gray-200 rounded-lg bg-white overflow-hidden"
+              >
+                <button
+                  class="w-full text-left p-4 bg-white hover:bg-gray-50 font-semibold text-gray-800 flex justify-between items-start gap-4"
+                  onclick="toggleAccordion(this)"
+                >
+                  <div>
+                    <span
+                      class="bg-red-100 text-red-800 text-xs px-2 py-1 rounded mb-2 inline-block"
+                      >Kasus 2: Provokasi Teman</span
+                    >
+                    <p class="text-sm font-normal text-gray-600 mt-1">
+                      "Hendri mengajak Dedi memprotes dan
+                      <strong>merusak kantor kelurahan</strong> karena kecewa
+                      bansos tidak tepat sasaran. Sikap Dedi?"
+                    </p>
+                  </div>
+                  <i
+                    data-lucide="chevron-down"
+                    class="accordion-icon w-5 h-5 text-gray-400 mt-1"
+                  ></i>
+                </button>
+                <div
+                  class="accordion-content px-5 bg-gray-50 text-gray-700 text-sm"
+                >
+                  <div class="py-4">
+                    <div class="mb-3">
+                      <strong>Tindakan Terbaik (Skala 5):</strong><br />
+                      Menjelaskan kepada Hendri bahwa tindakan (perusakan)
+                      tersebut masuk kategori
+                      <strong>radikalisme/anarkis</strong>, lalu mengajak
+                      konfirmasi baik-baik ke kantor kelurahan.
+                    </div>
+                    <div class="bg-white p-3 rounded border border-gray-200">
+                      <strong>Pembahasan:</strong><br />
+                      Radikalisme berawal dari intoleransi dan kekerasan (main
+                      hakim sendiri). Sebagai ASN/warga baik, kita harus
+                      mencegah tindakan anarkis dan mengedepankan solusi
+                      prosedural (konfirmasi data).
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <script>
+      // Initialize Icons
+      lucide.createIcons();
+
+      // Mobile Menu Logic
+      const menuBtn = document.getElementById("menuBtn");
+      const sidebar = document.getElementById("sidebar");
+      const overlay = document.getElementById("overlay");
+      const sidebarLinks = document.querySelectorAll(".sidebar-link");
+
+      function toggleSidebar() {
+        sidebar.classList.toggle("-translate-x-full");
+        overlay.classList.toggle("hidden");
+      }
+
+      if (menuBtn) {
+        menuBtn.addEventListener("click", toggleSidebar);
+        overlay.addEventListener("click", toggleSidebar);
+
+        // Close sidebar on link click (Mobile)
+        sidebarLinks.forEach((link) => {
+          link.addEventListener("click", () => {
+            // Set active state styling
+            sidebarLinks.forEach((l) => l.classList.remove("active"));
+            link.classList.add("active");
+
+            if (window.innerWidth < 768) {
+              toggleSidebar();
+            }
+          });
+        });
+      }
+
+      // Accordion Logic
+      function toggleAccordion(button) {
+        const item = button.parentElement;
+        item.classList.toggle("active");
+      }
+
+      // Analysis Reveal Logic
+      function toggleAnalysis(id) {
+        const el = document.getElementById(id);
+        if (el.style.display === "block") {
+          el.style.display = "none";
+        } else {
+          el.style.display = "block";
+        }
+      }
+    </script>
+  </body>
+</html>
