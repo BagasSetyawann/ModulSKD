@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Modul SKD</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      /* Custom Luxury Styles */
+      body {
+        font-family: "Plus Jakarta Sans", sans-serif;
+        background-color: #0f172a; /* Slate 900 */
+        color: #f8fafc;
+        overflow-x: hidden;
+      }
+
+      h1,
+      h2,
+      h3,
+      .serif {
+        font-family: "Playfair Display", serif;
+      }
+
+      /* Animated Background Gradient */
+      .bg-luxury {
+        background: radial-gradient(
+          circle at top right,
+          #1e293b 0%,
+          #0f172a 40%,
+          #020617 100%
+        );
+      }
+
+      /* Golden Glow Utilities */
+      .text-gold {
+        color: #fbbf24;
+        background: linear-gradient(to right, #fbbf24, #d97706);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      .border-gold {
+        border-color: #d97706;
+      }
+
+      .shadow-gold {
+        box-shadow: 0 0 20px rgba(217, 119, 6, 0.2);
+      }
+
+      /* Glassmorphism Card */
+      .glass-card {
+        background: rgba(30, 41, 59, 0.4);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(251, 191, 36, 0.1);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .glass-card:hover {
+        transform: translateY(-8px);
+        border-color: rgba(251, 191, 36, 0.5);
+        box-shadow: 0 10px 40px -10px rgba(217, 119, 6, 0.3);
+      }
+
+      /* Button Gradient */
+      .btn-gold {
+        background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
+        color: #0f172a;
+        font-weight: 700;
+        transition: all 0.3s ease;
+      }
+      .btn-gold:hover {
+        background: linear-gradient(135deg, #fcd34d 0%, #b45309 100%);
+        box-shadow: 0 0 15px rgba(251, 191, 36, 0.4);
+        transform: scale(1.02);
+      }
+
+      /* Floating Animation */
+      @keyframes float {
+        0% {
+          transform: translateY(0px);
+        }
+        50% {
+          transform: translateY(-10px);
+        }
+        100% {
+          transform: translateY(0px);
+        }
+      }
+      .animate-float {
+        animation: float 6s ease-in-out infinite;
+      }
+
+      /* Grid Pattern Overlay */
+      .grid-pattern {
+        background-image: linear-gradient(
+            to right,
+            rgba(255, 255, 255, 0.05) 1px,
+            transparent 1px
+          ),
+          linear-gradient(
+            to bottom,
+            rgba(255, 255, 255, 0.05) 1px,
+            transparent 1px
+          );
+        background-size: 40px 40px;
+        mask-image: radial-gradient(
+          circle at center,
+          black 40%,
+          transparent 80%
+        );
+      }
+
+      /* Hangman Keys */
+      .key-btn {
+        transition: all 0.2s;
+      }
+      .key-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: scale(0.95);
+      }
+      .hangman-part {
+        stroke: #fbbf24;
+        stroke-width: 4;
+        fill: none;
+        stroke-linecap: round;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+      .hangman-part.visible {
+        opacity: 1;
+      }
+    </style>
+  </head>
+  <body class="bg-luxury min-h-screen relative">
+    <!-- Decorative Background Grid -->
+    <div class="fixed inset-0 grid-pattern pointer-events-none z-0"></div>
+
+    <!-- Navbar -->
+    <nav
+      class="relative z-50 px-6 py-6 flex justify-between items-center max-w-7xl mx-auto"
+    >
+      <div class="flex items-center gap-2">
+        <div
+          class="p-2 bg-gradient-to-br from-amber-400 to-amber-600 rounded-lg"
+        >
+          <i data-lucide="award" class="w-6 h-6 text-slate-900"></i>
+        </div>
+        <span class="text-xl font-bold tracking-wide text-white">
+          Modul<span class="text-amber-500">SKD</span>
+        </span>
+      </div>
+      <div class="hidden md:flex gap-8 text-sm font-medium text-slate-300">
+        <a href="#home" class="hover:text-amber-400 transition-colors"
+          >Beranda</a
+        >
+        <a href="#modul" class="hover:text-amber-400 transition-colors"
+          >Modul Belajar</a
+        >
+        <a href="#game" class="hover:text-amber-400 transition-colors"
+          >Mini Game</a
+        >
+      </div>
+      <a
+        href="#modul"
+        class="hidden md:block px-6 py-2 rounded-full border border-amber-500/50 text-amber-400 hover:bg-amber-500/10 transition-all text-sm font-semibold"
+      >
+        Mulai Belajar
+      </a>
+    </nav>
+
+    <!-- Hero Section -->
+    <header
+      id="home"
+      class="relative z-10 pt-16 pb-32 px-6 max-w-7xl mx-auto text-center md:text-left"
+    >
+      <div class="grid md:grid-cols-2 gap-12 items-center">
+        <div class="space-y-6">
+          <div
+            class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800/80 border border-slate-700 text-amber-400 text-xs font-semibold tracking-wider uppercase animate-fadeIn"
+          >
+            <span
+              class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"
+            ></span>
+            Platform Belajar Premium
+          </div>
+          <h1 class="text-5xl md:text-7xl font-bold leading-tight">
+            Wujudkan Mimpi Menjadi <br />
+            <span class="text-gold italic">Abdi Negara.</span>
+          </h1>
+          <p class="text-slate-400 text-lg md:text-xl leading-relaxed max-w-lg">
+            Akses materi TWK, TIU, dan TKP terlengkap dengan antarmuka elegan.
+            Persiapkan diri Anda dengan standar tertinggi.
+          </p>
+          <div
+            class="flex flex-col sm:flex-row gap-4 pt-4 justify-center md:justify-start"
+          >
+            <a
+              href="#modul"
+              class="btn-gold px-8 py-4 rounded-xl shadow-gold flex items-center justify-center gap-2"
+            >
+              <i data-lucide="book-open" class="w-5 h-5"></i>
+              Akses Modul
+            </a>
+            <button
+              onclick="scrollToGame()"
+              class="px-8 py-4 rounded-xl border border-slate-600 hover:border-amber-500 text-slate-300 hover:text-amber-400 transition-all flex items-center justify-center gap-2 bg-slate-900/50 backdrop-blur-sm"
+            >
+              <i data-lucide="gamepad-2" class="w-5 h-5"></i>
+              Main Game
+            </button>
+          </div>
+        </div>
+
+        <!-- Hero Visual (3D Badge Concept) -->
+        <div class="relative flex justify-center animate-float">
+          <div
+            class="absolute inset-0 bg-amber-500 blur-[100px] opacity-20 rounded-full"
+          ></div>
+          <div
+            class="relative z-10 w-80 h-96 bg-gradient-to-b from-slate-800 to-slate-900 rounded-2xl border border-slate-700 shadow-2xl p-6 flex flex-col justify-between transform rotate-[-6deg] hover:rotate-0 transition-all duration-500"
+          >
+            <div class="flex justify-between items-start">
+              <div class="p-3 bg-slate-900 rounded-lg border border-slate-700">
+                <i
+                  data-lucide="shield-check"
+                  class="w-8 h-8 text-amber-500"
+                ></i>
+              </div>
+              <div class="text-right">
+                <p class="text-xs text-slate-400 uppercase">Target</p>
+                <p class="text-2xl font-bold text-white">NIP 2024</p>
+              </div>
+            </div>
+
+            <div class="space-y-3">
+              <div class="h-2 bg-slate-700 rounded-full overflow-hidden">
+                <div class="h-full bg-amber-500 w-3/4"></div>
+              </div>
+              <div class="flex justify-between text-xs text-slate-400">
+                <span>Progress Belajar</span>
+                <span>75%</span>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-2 mt-4">
+              <div
+                class="bg-slate-800 p-2 rounded text-center border border-slate-700"
+              >
+                <span class="block text-xs text-slate-500">TWK</span>
+                <span class="block font-bold text-amber-400">A</span>
+              </div>
+              <div
+                class="bg-slate-800 p-2 rounded text-center border border-slate-700"
+              >
+                <span class="block text-xs text-slate-500">TIU</span>
+                <span class="block font-bold text-amber-400">A</span>
+              </div>
+              <div
+                class="bg-slate-800 p-2 rounded text-center border border-slate-700"
+              >
+                <span class="block text-xs text-slate-500">TKP</span>
+                <span class="block font-bold text-amber-400">A+</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Modules Section (4 Cards) -->
+    <section id="modul" class="relative z-10 py-20 bg-slate-900/50">
+      <div class="max-w-7xl mx-auto px-6">
+        <div class="text-center mb-16">
+          <h2 class="text-3xl md:text-4xl font-bold mb-4">
+            Kurikulum <span class="text-gold">SKD Terintegrasi</span>
+          </h2>
+          <p class="text-slate-400 max-w-2xl mx-auto">
+            Pilih modul pembelajaran yang ingin Anda kuasai. Setiap modul
+            dirancang mendalam untuk memastikan pemahaman maksimal.
+          </p>
+        </div>
+
+        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <!-- Card 1: TWK (Index.html) -->
+          <a
+            href="twk.html"
+            class="glass-card group p-8 rounded-2xl relative overflow-hidden block"
+          >
+            <div
+              class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity"
+            >
+              <i data-lucide="flag" class="w-24 h-24 text-red-500"></i>
+            </div>
+            <div
+              class="w-14 h-14 bg-red-500/20 rounded-xl flex items-center justify-center mb-6 group-hover:bg-red-500 group-hover:text-white transition-colors text-red-400 border border-red-500/30"
+            >
+              <i data-lucide="landmark" class="w-7 h-7"></i>
+            </div>
+            <h3
+              class="text-xl font-bold mb-2 group-hover:text-red-400 transition-colors"
+            >
+              TWK
+            </h3>
+            <p class="text-sm text-slate-400 mb-4">
+              Wawasan Kebangsaan, Nasionalisme, dan Pilar Negara.
+            </p>
+            <span
+              class="text-xs font-bold text-red-400 flex items-center gap-1"
+            >
+              PELAJARI SEKARANG
+              <i data-lucide="arrow-right" class="w-3 h-3"></i>
+            </span>
+          </a>
+
+          <!-- Card 2: TIU -->
+          <a
+            href="tiu.html"
+            class="glass-card group p-8 rounded-2xl relative overflow-hidden block"
+          >
+            <div
+              class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity"
+            >
+              <i data-lucide="calculator" class="w-24 h-24 text-blue-500"></i>
+            </div>
+            <div
+              class="w-14 h-14 bg-blue-500/20 rounded-xl flex items-center justify-center mb-6 group-hover:bg-blue-500 group-hover:text-white transition-colors text-blue-400 border border-blue-500/30"
+            >
+              <i data-lucide="brain-circuit" class="w-7 h-7"></i>
+            </div>
+            <h3
+              class="text-xl font-bold mb-2 group-hover:text-blue-400 transition-colors"
+            >
+              TIU
+            </h3>
+            <p class="text-sm text-slate-400 mb-4">
+              Intelegensia Umum, Logika, Numerik, dan Verbal.
+            </p>
+            <span
+              class="text-xs font-bold text-blue-400 flex items-center gap-1"
+            >
+              PELAJARI SEKARANG
+              <i data-lucide="arrow-right" class="w-3 h-3"></i>
+            </span>
+          </a>
+
+          <!-- Card 3: TKP -->
+          <a
+            href="tkp.html"
+            class="glass-card group p-8 rounded-2xl relative overflow-hidden block"
+          >
+            <div
+              class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity"
+            >
+              <i data-lucide="users" class="w-24 h-24 text-emerald-500"></i>
+            </div>
+            <div
+              class="w-14 h-14 bg-emerald-500/20 rounded-xl flex items-center justify-center mb-6 group-hover:bg-emerald-500 group-hover:text-white transition-colors text-emerald-400 border border-emerald-500/30"
+            >
+              <i data-lucide="heart-handshake" class="w-7 h-7"></i>
+            </div>
+            <h3
+              class="text-xl font-bold mb-2 group-hover:text-emerald-400 transition-colors"
+            >
+              TKP
+            </h3>
+            <p class="text-sm text-slate-400 mb-4">
+              Karakteristik Pribadi, Pelayanan Publik, dan Jejaring.
+            </p>
+            <span
+              class="text-xs font-bold text-emerald-400 flex items-center gap-1"
+            >
+              PELAJARI SEKARANG
+              <i data-lucide="arrow-right" class="w-3 h-3"></i>
+            </span>
+          </a>
+
+          <!-- Card 4: Latihan Soal -->
+          <div
+            onclick="window.location.href='simulasi1.html'"
+            class="glass-card group p-8 rounded-2xl relative overflow-hidden cursor-pointer border-amber-500/40"
+          >
+            <div
+              class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity"
+            >
+              <i data-lucide="pen-tool" class="w-24 h-24 text-amber-500"></i>
+            </div>
+            <div
+              class="w-14 h-14 bg-amber-500/20 rounded-xl flex items-center justify-center mb-6 group-hover:bg-amber-500 group-hover:text-white transition-colors text-amber-400 border border-amber-500/30"
+            >
+              <i data-lucide="clipboard-list" class="w-7 h-7"></i>
+            </div>
+            <h3
+              class="text-xl font-bold mb-2 group-hover:text-amber-400 transition-colors"
+            >
+              Latihan Soal
+            </h3>
+            <p class="text-sm text-slate-400 mb-4">
+              Simulasi ujian CAT dengan timer dan penilaian real-time.
+            </p>
+            <span
+              class="text-xs font-bold text-amber-400 flex items-center gap-1"
+            >
+              MULAI SIMULASI <i data-lucide="play-circle" class="w-3 h-3"></i>
+            </span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Mini Game Section -->
+    <section id="game" class="relative z-10 py-20 px-6">
+      <div
+        class="max-w-4xl mx-auto glass-card rounded-3xl p-1 bg-gradient-to-b from-slate-800 to-slate-900 border border-slate-700 min-h-[500px]"
+      >
+        <div
+          class="bg-slate-900 rounded-[20px] p-6 md:p-12 text-center relative overflow-hidden h-full"
+        >
+          <!-- Background FX -->
+          <div
+            class="absolute top-0 left-1/2 -translate-x-1/2 w-full h-1 bg-gradient-to-r from-transparent via-amber-500 to-transparent shadow-[0_0_20px_rgba(251,191,36,0.5)]"
+          ></div>
+
+          <!-- Game Tabs -->
+          <div class="flex justify-center gap-4 mb-8">
+            <button
+              onclick="switchGameTab('quiz')"
+              id="tab-quiz"
+              class="px-6 py-2 rounded-full text-sm font-bold transition-all bg-amber-500 text-slate-900 shadow-lg shadow-amber-500/20"
+            >
+              Cerdas Cermat
+            </button>
+            <button
+              onclick="switchGameTab('hangman')"
+              id="tab-hangman"
+              class="px-6 py-2 rounded-full text-sm font-bold transition-all bg-slate-800 text-slate-400 hover:text-white border border-slate-700"
+            >
+              Hangman
+            </button>
+          </div>
+
+          <!-- ==================== QUIZ GAME CONTAINER ==================== -->
+          <div id="container-quiz" class="game-container block">
+            <div id="game-start-view">
+              <div
+                class="inline-block p-4 rounded-full bg-slate-800 mb-6 ring-4 ring-slate-800/50"
+              >
+                <i data-lucide="brain" class="w-12 h-12 text-amber-400"></i>
+              </div>
+              <h2 class="text-3xl font-bold mb-4">
+                Quiz <span class="text-gold">CPNS Kilat</span>
+              </h2>
+              <p class="text-slate-400 mb-8 max-w-md mx-auto">
+                Jawab 3 pertanyaan acak seputar CPNS dengan cepat. Dapatkan skor
+                sempurna untuk membuktikan kesiapanmu!
+              </p>
+              <button
+                onclick="startGame()"
+                class="btn-gold px-10 py-4 rounded-full text-lg shadow-lg hover:shadow-amber-500/20 transform transition-all"
+              >
+                Mulai Quiz
+              </button>
+            </div>
+
+            <div id="game-play-view" class="hidden">
+              <div
+                class="flex justify-between items-center mb-8 border-b border-slate-700 pb-4"
+              >
+                <span class="text-sm text-slate-400"
+                  >Soal
+                  <span id="q-current" class="text-white font-bold">1</span
+                  >/3</span
+                >
+                <span class="text-sm font-mono text-amber-400">SKD</span>
+              </div>
+
+              <div class="min-h-[120px] flex items-center justify-center mb-8">
+                <h3
+                  id="q-text"
+                  class="text-xl md:text-2xl font-bold leading-relaxed animate-fadeIn"
+                >
+                  <!-- Question Here -->
+                </h3>
+              </div>
+
+              <div
+                id="options-container"
+                class="grid grid-cols-1 md:grid-cols-2 gap-4"
+              >
+                <!-- Options Buttons generated by JS -->
+              </div>
+            </div>
+
+            <div id="game-end-view" class="hidden">
+              <div class="mb-6">
+                <i
+                  id="result-icon"
+                  data-lucide="trophy"
+                  class="w-20 h-20 mx-auto text-amber-400 animate-bounce"
+                ></i>
+              </div>
+              <h2 class="text-3xl font-bold mb-2" id="result-title">
+                Luar Biasa!
+              </h2>
+              <p class="text-slate-400 mb-6" id="result-desc">
+                Kamu menjawab semua soal dengan benar.
+              </p>
+              <div
+                class="inline-block px-6 py-2 bg-slate-800 rounded-lg border border-slate-700 mb-8"
+              >
+                <span class="text-sm text-slate-500 uppercase tracking-widest"
+                  >Skor Akhir</span
+                >
+                <div
+                  class="text-4xl font-bold text-amber-400"
+                  id="result-score"
+                >
+                  100
+                </div>
+              </div>
+              <div>
+                <button
+                  onclick="resetGame()"
+                  class="px-6 py-3 rounded-lg border border-slate-600 hover:bg-slate-800 text-white transition-all"
+                >
+                  Coba Lagi
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ==================== HANGMAN GAME CONTAINER ==================== -->
+          <div id="container-hangman" class="game-container hidden">
+            <div id="hangman-start-view">
+              <div
+                class="inline-block p-4 rounded-full bg-slate-800 mb-6 ring-4 ring-slate-800/50"
+              >
+                <i data-lucide="anchor" class="w-12 h-12 text-amber-400"></i>
+              </div>
+              <h2 class="text-3xl font-bold mb-4">
+                Tebak Kata <span class="text-gold">Hangman</span>
+              </h2>
+              <p class="text-slate-400 mb-8 max-w-md mx-auto">
+                Tebak istilah-istilah penting dalam dunia CPNS & Kebangsaan
+                sebelum gambar tiang gantungan selesai!
+              </p>
+              <button
+                onclick="startHangman()"
+                class="btn-gold px-10 py-4 rounded-full text-lg shadow-lg hover:shadow-amber-500/20 transform transition-all"
+              >
+                Mulai Tebak Kata
+              </button>
+            </div>
+
+            <div id="hangman-play-view" class="hidden">
+              <div class="grid md:grid-cols-2 gap-8 h-full">
+                <!-- Visual Display -->
+                <div
+                  class="bg-slate-800/50 rounded-xl p-4 flex flex-col items-center justify-center border border-slate-700"
+                >
+                  <svg
+                    width="200"
+                    height="200"
+                    viewBox="0 0 200 200"
+                    class="mx-auto"
+                  >
+                    <!-- Base -->
+                    <line
+                      x1="20"
+                      y1="180"
+                      x2="100"
+                      y2="180"
+                      stroke="#94a3b8"
+                      stroke-width="4"
+                      stroke-linecap="round"
+                    />
+                    <!-- Pole -->
+                    <line
+                      x1="60"
+                      y1="180"
+                      x2="60"
+                      y2="20"
+                      stroke="#94a3b8"
+                      stroke-width="4"
+                      stroke-linecap="round"
+                    />
+                    <!-- Top Bar -->
+                    <line
+                      x1="58"
+                      y1="20"
+                      x2="140"
+                      y2="20"
+                      stroke="#94a3b8"
+                      stroke-width="4"
+                      stroke-linecap="round"
+                    />
+                    <!-- Rope -->
+                    <line
+                      x1="140"
+                      y1="20"
+                      x2="140"
+                      y2="50"
+                      stroke="#fbbf24"
+                      stroke-width="3"
+                      stroke-linecap="round"
+                    />
+
+                    <!-- Body Parts (Hidden by default) -->
+                    <circle
+                      id="hm-head"
+                      cx="140"
+                      cy="70"
+                      r="20"
+                      class="hangman-part"
+                    />
+                    <line
+                      id="hm-body"
+                      x1="140"
+                      y1="90"
+                      x2="140"
+                      y2="140"
+                      class="hangman-part"
+                    />
+                    <line
+                      id="hm-arm-l"
+                      x1="140"
+                      y1="100"
+                      x2="120"
+                      y2="120"
+                      class="hangman-part"
+                    />
+                    <line
+                      id="hm-arm-r"
+                      x1="140"
+                      y1="100"
+                      x2="160"
+                      y2="120"
+                      class="hangman-part"
+                    />
+                    <line
+                      id="hm-leg-l"
+                      x1="140"
+                      y1="140"
+                      x2="120"
+                      y2="170"
+                      class="hangman-part"
+                    />
+                    <line
+                      id="hm-leg-r"
+                      x1="140"
+                      y1="140"
+                      x2="160"
+                      y2="170"
+                      class="hangman-part"
+                    />
+                  </svg>
+                  <div class="mt-4 text-slate-400 text-sm">
+                    Kesempatan:
+                    <span
+                      id="hangman-lives"
+                      class="text-amber-400 font-bold text-lg"
+                      >6</span
+                    >
+                  </div>
+                </div>
+
+                <!-- Word & Keyboard -->
+                <div class="flex flex-col justify-between">
+                  <div
+                    class="mb-6 min-h-[60px] flex items-center justify-center flex-wrap"
+                  >
+                    <div
+                      id="word-display"
+                      class="text-3xl font-mono font-bold text-white tracking-[0.2em] break-all"
+                    >
+                      _ _ _ _ _ _ _
+                    </div>
+                  </div>
+
+                  <div id="keyboard-container" class="grid grid-cols-7 gap-1">
+                    <!-- Keys generated by JS -->
+                  </div>
+
+                  <div
+                    id="hangman-message"
+                    class="mt-4 text-sm font-semibold h-6 text-amber-400"
+                  ></div>
+                </div>
+              </div>
+            </div>
+
+            <div id="hangman-end-view" class="hidden">
+              <div class="mb-6">
+                <i
+                  id="hm-result-icon"
+                  data-lucide="check-circle"
+                  class="w-20 h-20 mx-auto animate-bounce"
+                ></i>
+              </div>
+              <h2 class="text-3xl font-bold mb-2" id="hm-result-title">
+                Menang!
+              </h2>
+              <p class="text-slate-400 mb-2">Kata yang dicari adalah:</p>
+              <div
+                class="text-2xl font-bold text-gold mb-8 tracking-widest bg-slate-800 py-2 rounded border border-slate-700"
+                id="hm-result-word"
+              >
+                KATANYA
+              </div>
+
+              <button
+                onclick="startHangman()"
+                class="px-6 py-3 rounded-lg border border-slate-600 hover:bg-slate-800 text-white transition-all"
+              >
+                Main Lagi
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer
+      class="relative z-10 py-10 bg-slate-950 border-t border-slate-900 text-center text-slate-500 text-sm"
+    >
+      <p>&copy; 2026 Made by Bagas</p>
+    </footer>
+
+    <!-- Modal for Latihan Soal Placeholder -->
+    <div
+      id="quiz-modal"
+      class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+    >
+      <div
+        class="bg-slate-900 border border-amber-500/30 rounded-2xl p-8 max-w-sm w-full text-center shadow-2xl transform scale-95 opacity-0 transition-all duration-300"
+        id="quiz-modal-content"
+      >
+        <div
+          class="w-16 h-16 bg-amber-500/20 rounded-full flex items-center justify-center mx-auto mb-4 text-amber-500"
+        >
+          <i data-lucide="lock" class="w-8 h-8"></i>
+        </div>
+        <h3 class="text-xl font-bold text-white mb-2">Fitur Premium</h3>
+        <p class="text-slate-400 mb-6">
+          Modul Latihan Soal Lengkap sedang dalam tahap penyusunan akhir.
+          Nantikan update selanjutnya!
+        </p>
+        <button
+          onclick="closeQuizModal()"
+          class="w-full py-3 rounded-lg bg-slate-800 text-white hover:bg-slate-700 transition-colors"
+        >
+          Mengerti
+        </button>
+      </div>
+    </div>
+
+    <!-- Script Game & Interactivity -->
+    <script>
+      // Initialize Icons
+      lucide.createIcons();
+
+      function scrollToGame() {
+        document.getElementById("game").scrollIntoView({ behavior: "smooth" });
+      }
+
+      function switchGameTab(tab) {
+        // Reset Tabs Styles
+        const btnQuiz = document.getElementById("tab-quiz");
+        const btnHangman = document.getElementById("tab-hangman");
+        const conQuiz = document.getElementById("container-quiz");
+        const conHangman = document.getElementById("container-hangman");
+
+        if (tab === "quiz") {
+          btnQuiz.className =
+            "px-6 py-2 rounded-full text-sm font-bold transition-all bg-amber-500 text-slate-900 shadow-lg shadow-amber-500/20";
+          btnHangman.className =
+            "px-6 py-2 rounded-full text-sm font-bold transition-all bg-slate-800 text-slate-400 hover:text-white border border-slate-700";
+          conQuiz.classList.remove("hidden");
+          conHangman.classList.add("hidden");
+        } else {
+          btnHangman.className =
+            "px-6 py-2 rounded-full text-sm font-bold transition-all bg-amber-500 text-slate-900 shadow-lg shadow-amber-500/20";
+          btnQuiz.className =
+            "px-6 py-2 rounded-full text-sm font-bold transition-all bg-slate-800 text-slate-400 hover:text-white border border-slate-700";
+          conHangman.classList.remove("hidden");
+          conQuiz.classList.add("hidden");
+        }
+      }
+
+      // ==================== CERDAS CERMAT LOGIC ====================
+      // Expanded Question Bank (15 Questions)
+      const questionBank = [
+        {
+          q: "Apa landasan idiil negara Indonesia?",
+          options: ["UUD 1945", "Pancasila", "Tap MPR", "Bhinneka Tunggal Ika"],
+          a: 1,
+        },
+        {
+          q: "Lawan kata dari 'Eklektik' adalah?",
+          options: ["Memilih", "Campuran", "Tak Pilih-pilih", "Eksklusif"],
+          a: 2,
+        },
+        {
+          q: "Berapa jumlah bulu ekor pada Garuda Pancasila?",
+          options: ["8", "17", "19", "45"],
+          a: 0,
+        },
+        {
+          q: "Jika A = B dan B = C, maka...",
+          options: ["A > C", "A = C", "A < C", "Tidak ada hubungan"],
+          a: 1,
+        },
+        {
+          q: "Siapa ketua BPUPKI?",
+          options: [
+            "Ir. Soekarno",
+            "Dr. Radjiman W.",
+            "Moh. Hatta",
+            "M. Yamin",
+          ],
+          a: 1,
+        },
+        {
+          q: "Tanggal 1 Juni diperingati sebagai hari?",
+          options: [
+            "Kesaktian Pancasila",
+            "Lahirnya Pancasila",
+            "Kemerdekaan",
+            "Pahlawan",
+          ],
+          a: 1,
+        },
+        {
+          q: "Lembaga yang berwenang menguji UU terhadap UUD adalah?",
+          options: [
+            "Mahkamah Agung",
+            "Komisi Yudisial",
+            "Mahkamah Konstitusi",
+            "DPR",
+          ],
+          a: 2,
+        },
+        {
+          q: "Ibukota negara Indonesia yang baru bernama?",
+          options: ["Jaya Karta", "Nusantara", "Kutai", "Borneo"],
+          a: 1,
+        },
+        {
+          q: "Sinonim dari kata 'Relatif' adalah?",
+          options: ["Pasti", "Nisbi", "Mutlak", "Statis"],
+          a: 1,
+        },
+        {
+          q: "Lambang sila ke-3 Pancasila adalah?",
+          options: ["Bintang", "Rantai", "Pohon Beringin", "Padi Kapas"],
+          a: 2,
+        },
+        {
+          q: "Bhinneka Tunggal Ika diambil dari kitab?",
+          options: [
+            "Sutasoma",
+            "Negarakertagama",
+            "Arjuna Wiwaha",
+            "Baratayuda",
+          ],
+          a: 0,
+        },
+        {
+          q: "Amandemen UUD 1945 dilakukan sebanyak?",
+          options: ["2 kali", "3 kali", "4 kali", "5 kali"],
+          a: 2,
+        },
+        {
+          q: "Negara ASEAN yang tidak pernah dijajah adalah?",
+          options: ["Indonesia", "Malaysia", "Singapura", "Thailand"],
+          a: 3,
+        },
+        {
+          q: "Trias Politica membagi kekuasaan menjadi?",
+          options: [
+            "Legislatif, Eksekutif, Yudikatif",
+            "Presiden, MPR, DPR",
+            "Pusat, Daerah, Desa",
+            "Politik, Ekonomi, Sosial",
+          ],
+          a: 0,
+        },
+        {
+          q: "Hak DPR untuk meminta keterangan pemerintah disebut?",
+          options: [
+            "Hak Angket",
+            "Hak Interpelasi",
+            "Hak Menyatakan Pendapat",
+            "Hak Imunitas",
+          ],
+          a: 1,
+        },
+      ];
+
+      let currentQuestions = [];
+      let qIndex = 0;
+      let score = 0;
+
+      function startGame() {
+        const shuffled = [...questionBank].sort(() => 0.5 - Math.random());
+        currentQuestions = shuffled.slice(0, 3);
+        qIndex = 0;
+        score = 0;
+
+        document.getElementById("game-start-view").classList.add("hidden");
+        document.getElementById("game-play-view").classList.remove("hidden");
+        document.getElementById("game-end-view").classList.add("hidden");
+        loadQuestion();
+      }
+
+      function loadQuestion() {
+        if (qIndex >= 3) {
+          endGame();
+          return;
+        }
+
+        const data = currentQuestions[qIndex];
+        document.getElementById("q-current").innerText = qIndex + 1;
+        document.getElementById("q-text").innerText = data.q;
+
+        const container = document.getElementById("options-container");
+        container.innerHTML = "";
+
+        data.options.forEach((opt, idx) => {
+          const btn = document.createElement("button");
+          btn.className =
+            "p-4 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-medium transition-all text-left hover:border-amber-500/50";
+          btn.innerText = opt;
+          btn.onclick = () => checkAnswer(idx, data.a);
+          container.appendChild(btn);
+        });
+      }
+
+      function checkAnswer(selected, correct) {
+        const btns = document.getElementById("options-container").children;
+
+        if (selected === correct) {
+          btns[selected].classList.remove("bg-slate-800", "border-slate-700");
+          btns[selected].classList.add(
+            "bg-green-600",
+            "border-green-500",
+            "text-white"
+          );
+          score++;
+        } else {
+          btns[selected].classList.remove("bg-slate-800", "border-slate-700");
+          btns[selected].classList.add(
+            "bg-red-600",
+            "border-red-500",
+            "text-white"
+          );
+          btns[correct].classList.add("bg-green-600/50", "border-green-500/50");
+        }
+
+        for (let btn of btns) {
+          btn.disabled = true;
+        }
+        setTimeout(() => {
+          qIndex++;
+          loadQuestion();
+        }, 1000);
+      }
+
+      function endGame() {
+        document.getElementById("game-play-view").classList.add("hidden");
+        document.getElementById("game-end-view").classList.remove("hidden");
+
+        const scoreEl = document.getElementById("result-score");
+        const titleEl = document.getElementById("result-title");
+        const descEl = document.getElementById("result-desc");
+        const iconEl = document.getElementById("result-icon");
+
+        const finalScore = Math.round((score / 3) * 100);
+        scoreEl.innerText = finalScore;
+
+        if (finalScore === 100) {
+          titleEl.innerText = "Sempurna!";
+          descEl.innerText = "Kamu siap menghadapi tes SKD sesungguhnya.";
+          titleEl.className = "text-3xl font-bold mb-2 text-gold";
+          iconEl.setAttribute("data-lucide", "crown");
+        } else if (finalScore > 50) {
+          titleEl.innerText = "Bagus Sekali";
+          descEl.innerText = "Terus berlatih untuk hasil maksimal!";
+          titleEl.className = "text-3xl font-bold mb-2 text-white";
+        } else {
+          titleEl.innerText = "Jangan Menyerah";
+          descEl.innerText = "Perbanyak baca modul lagi ya.";
+          titleEl.className = "text-3xl font-bold mb-2 text-slate-300";
+          iconEl.setAttribute("data-lucide", "book-open");
+        }
+        lucide.createIcons();
+      }
+
+      function resetGame() {
+        document.getElementById("game-end-view").classList.add("hidden");
+        document.getElementById("game-start-view").classList.remove("hidden");
+      }
+
+      // ==================== HANGMAN LOGIC ====================
+      const hangmanWords = [
+        "PANCASILA",
+        "KONSTITUSI",
+        "INTEGRITAS",
+        "NASIONALISME",
+        "BIROKRASI",
+        "ABDI NEGARA",
+        "REFORMASI",
+        "AKUNTABILITAS",
+        "KOMPETENSI",
+        "PROFESIONAL",
+        "BHINNEKA",
+        "NUSANTARA",
+        "DEMOKRASI",
+        "WAWASAN",
+        "KEBANGSAAN",
+      ];
+
+      let hmWord = "";
+      let hmLives = 6;
+      let hmGuessed = [];
+
+      function startHangman() {
+        hmWord = hangmanWords[Math.floor(Math.random() * hangmanWords.length)];
+        hmLives = 6;
+        hmGuessed = [];
+
+        // Reset UI
+        document.getElementById("hangman-start-view").classList.add("hidden");
+        document.getElementById("hangman-end-view").classList.add("hidden");
+        document.getElementById("hangman-play-view").classList.remove("hidden");
+        document.getElementById("hangman-lives").innerText = hmLives;
+        document.getElementById("hangman-message").innerText = "";
+
+        // Reset SVG parts
+        document
+          .querySelectorAll(".hangman-part")
+          .forEach((el) => el.classList.remove("visible"));
+
+        renderWord();
+        renderKeyboard();
+      }
+
+      function renderWord() {
+        const display = hmWord
+          .split("")
+          .map((char) => {
+            if (char === " ") return "&nbsp;";
+            return hmGuessed.includes(char) ? char : "_";
+          })
+          .join(" ");
+        document.getElementById("word-display").innerHTML = display;
+      }
+
+      function renderKeyboard() {
+        const container = document.getElementById("keyboard-container");
+        container.innerHTML = "";
+        const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+        alphabet.split("").forEach((char) => {
+          const btn = document.createElement("button");
+          btn.innerText = char;
+          btn.className = `key-btn p-2 rounded bg-slate-700 text-white font-bold hover:bg-slate-600 border border-slate-600 ${
+            hmGuessed.includes(char)
+              ? "opacity-50 cursor-not-allowed bg-slate-900"
+              : ""
+          }`;
+          btn.disabled = hmGuessed.includes(char);
+          btn.onclick = () => handleGuess(char);
+          container.appendChild(btn);
+        });
+      }
+
+      function handleGuess(char) {
+        if (hmGuessed.includes(char) || hmLives <= 0) return;
+
+        hmGuessed.push(char);
+
+        if (!hmWord.includes(char)) {
+          hmLives--;
+          document.getElementById("hangman-lives").innerText = hmLives;
+          showHangmanPart(6 - hmLives); // Show part 1 when lives 5 (index 0 for array logic usually, but here by ID)
+        }
+
+        renderWord();
+        renderKeyboard();
+        checkHangmanWin();
+      }
+
+      function showHangmanPart(partNum) {
+        const parts = ["head", "body", "arm-l", "arm-r", "leg-l", "leg-r"];
+        if (partNum > 0 && partNum <= 6) {
+          document
+            .getElementById("hm-" + parts[partNum - 1])
+            .classList.add("visible");
+        }
+      }
+
+      function checkHangmanWin() {
+        // Check Win
+        const cleanWord = hmWord.replace(/ /g, "");
+        const isWin = cleanWord.split("").every((c) => hmGuessed.includes(c));
+
+        if (isWin) {
+          endHangman(true);
+        } else if (hmLives <= 0) {
+          endHangman(false);
+        }
+      }
+
+      function endHangman(win) {
+        setTimeout(() => {
+          document.getElementById("hangman-play-view").classList.add("hidden");
+          document
+            .getElementById("hangman-end-view")
+            .classList.remove("hidden");
+
+          const title = document.getElementById("hm-result-title");
+          const icon = document.getElementById("hm-result-icon");
+          const wordEl = document.getElementById("hm-result-word");
+
+          wordEl.innerText = hmWord;
+
+          if (win) {
+            title.innerText = "Selamat, Kamu Menang!";
+            title.className = "text-3xl font-bold mb-2 text-gold";
+            icon.setAttribute("data-lucide", "check-circle");
+            icon.className = "w-20 h-20 mx-auto text-green-500 animate-bounce";
+          } else {
+            title.innerText = "Game Over";
+            title.className = "text-3xl font-bold mb-2 text-red-500";
+            icon.setAttribute("data-lucide", "x-circle");
+            icon.className = "w-20 h-20 mx-auto text-red-500 animate-pulse";
+          }
+          lucide.createIcons();
+        }, 1000);
+      }
+
+      // --- Modal Logic ---
+      function openQuizModal() {
+        const modal = document.getElementById("quiz-modal");
+        const content = document.getElementById("quiz-modal-content");
+        modal.classList.remove("hidden");
+        modal.classList.add("flex");
+
+        setTimeout(() => {
+          content.classList.remove("scale-95", "opacity-0");
+          content.classList.add("scale-100", "opacity-100");
+        }, 10);
+      }
+
+      function closeQuizModal() {
+        const modal = document.getElementById("quiz-modal");
+        const content = document.getElementById("quiz-modal-content");
+
+        content.classList.remove("scale-100", "opacity-100");
+        content.classList.add("scale-95", "opacity-0");
+
+        setTimeout(() => {
+          modal.classList.add("hidden");
+          modal.classList.remove("flex");
+        }, 300);
+      }
+    </script>
+  </body>
+</html>
