@@ -1,0 +1,2460 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Simulasi CAT SKD CPNS</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome untuk Ikon -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <!-- Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <!-- jsPDF untuk Export PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+
+    <style>
+      body {
+        font-family: "Poppins", sans-serif;
+        background-color: #f3f4f6;
+      }
+      .active-question {
+        background-color: #2563eb;
+        color: white;
+        border-color: #2563eb;
+      }
+      .answered-question {
+        background-color: #22c55e;
+        color: white;
+        border-color: #22c55e;
+      }
+      .flagged-question {
+        background-color: #facc15;
+        color: white;
+        border-color: #facc15;
+      }
+      /* Hide scrollbar for nav but allow scroll */
+      .no-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+    </style>
+  </head>
+  <body class="h-screen flex flex-col overflow-hidden">
+    <!-- HEADER -->
+    <header class="bg-blue-800 text-white shadow-md z-10">
+      <div
+        class="container mx-auto px-4 py-3 flex justify-between items-center"
+      >
+        <div class="flex items-center space-x-3">
+          <i class="fa-solid fa-graduation-cap text-2xl"></i>
+          <div>
+            <a href="index.html">
+              <h1 class="font-bold text-lg leading-tight">Simulasi CAT SKD</h1>
+            </a>
+
+            <p class="text-xs text-blue-200">Paket Soal 1</p>
+          </div>
+        </div>
+
+        <!-- Timer Display (Hidden on Start Screen) -->
+        <div
+          id="timer-container"
+          class="hidden bg-white text-blue-800 px-4 py-2 rounded-lg font-bold shadow-lg flex items-center space-x-2"
+        >
+          <i class="fa-regular fa-clock"></i>
+          <span id="timer-display" class="text-xl font-mono">01:40:00</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="flex-1 container mx-auto p-4 overflow-hidden relative">
+      <!-- HALAMAN MULAI -->
+      <div
+        id="start-screen"
+        class="bg-white rounded-xl shadow-xl p-8 max-w-3xl mx-auto mt-10 text-center"
+      >
+        <div class="mb-6">
+          <img
+            src="https://img.freepik.com/free-vector/online-test-concept-illustration_114360-5231.jpg"
+            alt="Ilustrasi Ujian"
+            class="w-64 mx-auto mb-4"
+          />
+          <h2 class="text-3xl font-bold text-gray-800 mb-2">
+            Selamat Datang di Simulasi SKD
+          </h2>
+          <p class="text-gray-600">
+            Silakan baca petunjuk di bawah ini sebelum memulai ujian.
+          </p>
+        </div>
+
+        <div
+          class="text-left bg-blue-50 p-6 rounded-lg border border-blue-100 mb-8"
+        >
+          <h3 class="font-bold text-blue-800 mb-3">
+            <i class="fa-solid fa-circle-info mr-2"></i>Petunjuk Pengerjaan:
+          </h3>
+          <ul class="list-disc list-inside space-y-2 text-gray-700 text-sm">
+            <li>Total Waktu: <strong>100 Menit</strong>.</li>
+            <li>
+              Jumlah Soal: <strong>110 Soal</strong> (30 TWK, 35 TIU, 45 TKP).
+            </li>
+            <li>
+              Waktu akan berjalan otomatis saat tombol
+              <strong>MULAI</strong> ditekan.
+            </li>
+            <li>
+              Sistem penilaian disesuaikan dengan aturan SKD terbaru (Passing
+              Grade).
+            </li>
+            <li>
+              Klik tombol "Selesai" jika Anda telah menyelesaikan semua soal
+              sebelum waktu habis.
+            </li>
+          </ul>
+        </div>
+
+        <button
+          onclick="startQuiz()"
+          class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transform transition hover:-translate-y-1 hover:shadow-xl w-full md:w-auto"
+        >
+          <i class="fa-solid fa-play mr-2"></i> MULAI UJIAN
+        </button>
+      </div>
+
+      <!-- HALAMAN UJIAN (Hidden by default) -->
+      <div
+        id="quiz-interface"
+        class="hidden h-full flex flex-col md:flex-row gap-4"
+      >
+        <!-- Area Soal (Kiri/Utama) -->
+        <div
+          class="flex-1 bg-white rounded-xl shadow-lg flex flex-col overflow-hidden h-full"
+        >
+          <!-- Header Soal -->
+          <div
+            class="bg-gray-50 px-6 py-4 border-b flex justify-between items-center"
+          >
+            <span class="font-bold text-gray-700 text-lg"
+              >Soal No. <span id="q-number">1</span></span
+            >
+            <span
+              id="q-category"
+              class="px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-800"
+              >TWK</span
+            >
+          </div>
+
+          <!-- Konten Soal -->
+          <div class="flex-1 overflow-y-auto p-6" id="question-area">
+            <!-- Text Soal -->
+            <div id="q-text" class="text-gray-800 text-lg mb-6 leading-relaxed">
+              <!-- Soal akan muncul di sini -->
+            </div>
+
+            <!-- Area Gambar Soal -->
+            <div id="q-image-container" class="mb-6 hidden">
+              <img
+                id="q-image"
+                src=""
+                alt="Gambar Soal"
+                class="max-w-full h-auto rounded-lg border border-gray-300"
+              />
+            </div>
+
+            <!-- Pilihan Jawaban -->
+            <div id="q-options" class="space-y-3">
+              <!-- Opsi akan digenerate via JS -->
+            </div>
+          </div>
+
+          <!-- Footer Navigasi -->
+          <div
+            class="bg-gray-50 px-6 py-4 border-t flex justify-between items-center"
+          >
+            <button
+              onclick="prevQuestion()"
+              id="btn-prev"
+              class="px-4 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 font-medium disabled:opacity-50"
+            >
+              <i class="fa-solid fa-chevron-left mr-1"></i> Sebelumnya
+            </button>
+
+            <div class="flex space-x-2">
+              <button
+                onclick="toggleFlag()"
+                id="btn-flag"
+                class="px-4 py-2 rounded-lg bg-yellow-100 text-yellow-700 hover:bg-yellow-200 font-medium"
+              >
+                <i class="fa-regular fa-flag mr-1"></i> Ragu-ragu
+              </button>
+              <button
+                onclick="finishQuizConfirmation()"
+                class="px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 font-medium"
+              >
+                Selesai <i class="fa-solid fa-check ml-1"></i>
+              </button>
+            </div>
+
+            <button
+              onclick="nextQuestion()"
+              id="btn-next"
+              class="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 font-medium disabled:opacity-50"
+            >
+              Selanjutnya <i class="fa-solid fa-chevron-right ml-1"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Navigasi Nomor (Kanan/Sidebar) -->
+        <div
+          class="w-full md:w-80 bg-white rounded-xl shadow-lg flex flex-col h-1/3 md:h-full"
+        >
+          <div class="p-4 border-b bg-gray-50">
+            <h3 class="font-bold text-gray-700">Navigasi Soal</h3>
+            <div class="flex items-center text-xs space-x-3 mt-2">
+              <span class="flex items-center"
+                ><span class="w-3 h-3 bg-green-500 rounded-sm mr-1"></span>
+                Dijawab</span
+              >
+              <span class="flex items-center"
+                ><span class="w-3 h-3 bg-blue-600 rounded-sm mr-1"></span>
+                Aktif</span
+              >
+              <span class="flex items-center"
+                ><span class="w-3 h-3 bg-yellow-400 rounded-sm mr-1"></span>
+                Ragu</span
+              >
+            </div>
+          </div>
+          <div class="flex-1 overflow-y-auto p-4 custom-scrollbar">
+            <div id="question-nav-grid" class="grid grid-cols-5 gap-2">
+              <!-- Grid nomor soal akan digenerate via JS -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- HALAMAN HASIL (Hidden by default) -->
+      <div
+        id="result-screen"
+        class="hidden bg-white rounded-xl shadow-xl p-8 max-w-4xl mx-auto h-full overflow-y-auto"
+      >
+        <div class="text-center mb-8 border-b pb-6">
+          <div class="inline-block p-4 rounded-full bg-blue-100 mb-4">
+            <i class="fa-solid fa-trophy text-4xl text-blue-600"></i>
+          </div>
+          <h2 class="text-3xl font-bold text-gray-800">Hasil Simulasi SKD</h2>
+          <p id="result-date" class="text-gray-500 text-sm mt-1"></p>
+        </div>
+
+        <!-- Score Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+          <div
+            class="bg-indigo-600 text-white p-4 rounded-xl shadow-md text-center"
+          >
+            <div class="text-sm opacity-80 mb-1">Total Skor</div>
+            <div id="score-total" class="text-4xl font-bold">0</div>
+            <div
+              id="score-status"
+              class="mt-2 text-xs font-bold bg-white/20 py-1 px-2 rounded inline-block"
+            >
+              TIDAK LULUS
+            </div>
+          </div>
+          <div
+            class="bg-white border border-gray-200 p-4 rounded-xl shadow-sm text-center"
+          >
+            <div class="text-sm text-gray-500 mb-1">TWK (Min: 65)</div>
+            <div id="score-twk" class="text-2xl font-bold text-gray-800">0</div>
+          </div>
+          <div
+            class="bg-white border border-gray-200 p-4 rounded-xl shadow-sm text-center"
+          >
+            <div class="text-sm text-gray-500 mb-1">TIU (Min: 80)</div>
+            <div id="score-tiu" class="text-2xl font-bold text-gray-800">0</div>
+          </div>
+          <div
+            class="bg-white border border-gray-200 p-4 rounded-xl shadow-sm text-center"
+          >
+            <div class="text-sm text-gray-500 mb-1">TKP (Min: 166)</div>
+            <div id="score-tkp" class="text-2xl font-bold text-gray-800">0</div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex justify-center space-x-4 mb-8">
+          <button
+            onclick="location.reload()"
+            class="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-gray-700"
+          >
+            <i class="fa-solid fa-rotate-right mr-2"></i> Ulangi Tes
+          </button>
+          <button
+            onclick="exportToPDF()"
+            class="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 shadow-md"
+          >
+            <i class="fa-solid fa-file-pdf mr-2"></i> Unduh PDF
+          </button>
+        </div>
+
+        <!-- Pembahasan -->
+        <div>
+          <h3
+            class="font-bold text-xl text-gray-800 mb-4 border-l-4 border-blue-600 pl-3"
+          >
+            Pembahasan & Detail Jawaban
+          </h3>
+          <div id="review-container" class="space-y-4">
+            <!-- List pembahasan di-generate via JS -->
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Modal Konfirmasi Selesai -->
+    <div
+      id="finish-modal"
+      class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50"
+    >
+      <div class="bg-white rounded-xl p-6 max-w-sm w-full mx-4 shadow-2xl">
+        <h3 class="text-xl font-bold mb-2">Selesaikan Ujian?</h3>
+        <p class="text-gray-600 mb-6">
+          Waktu masih tersisa. Apakah Anda yakin ingin mengakhiri ujian ini?
+          Nilai akan langsung diproses.
+        </p>
+        <div class="flex justify-end space-x-3">
+          <button
+            onclick="closeModal()"
+            class="px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-100"
+          >
+            Batal
+          </button>
+          <button
+            onclick="finishQuiz()"
+            class="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700"
+          >
+            Ya, Selesai
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+      // ==========================================
+      // 1. DATA SOAL (DATABASE)
+      // ==========================================
+
+      // PETUNJUK GAMBAR:
+      // Untuk menambahkan gambar pada soal, tambahkan properti 'image' dengan path file gambar.
+      // Contoh: image: "img/soal_matematika.png"
+      // Jika tidak ada gambar, biarkan null.
+
+      const questionBank = [
+        // --- TWK (1-30) ---
+        {
+          id: 1,
+          type: "TWK",
+          question: "Sebagai ideologi terbuka, maka pancasila sebaiknya...",
+          image: null,
+          options: {
+            A: "Disesuaikan dengan ideologi lain",
+            B: "Dipadukan dengan ideologi lain",
+            C: "Dibuatkan penafsiran resmi",
+            D: "Ditafsirkan ulang",
+            E: "Dikontraskan dengan ideologi lain",
+          },
+          key: "A", // Kunci Jawaban
+          discussion:
+            "Sebagai ideologi terbuka, Pancasila bersifat dinamis dan dapat berinteraksi dengan perkembangan zaman tanpa mengubah nilai dasarnya.",
+        },
+        {
+          id: 2,
+          type: "TWK",
+          question:
+            "Di dalam ideologi terdapat tiga unsur esensial, salah satunya adalah bahwa setiap ideologi selalu memuat adanya gagasan-gagasan vital yang sudah diyakini kebenarannya. Unsur ini disebut...",
+          image: null,
+          options: {
+            A: "Keyakinan",
+            B: "Mitos",
+            C: "Loyalitas",
+            D: "Doktrin",
+            E: "Cita-cita",
+          },
+          key: "A",
+          discussion:
+            "Keyakinan adalah unsur yang memuat gagasan vital yang diyakini kebenarannya untuk dijadikan dasar dan arah.",
+        },
+        {
+          id: 3,
+          type: "TWK",
+          question:
+            "Pancasila adalah sikap mental dan tingkah laku bangsa Indonesia yang mempunyai ciri khas, merupakan kedudukan pancasila sebagai...",
+          image: null,
+          options: {
+            A: "Dasar Negara",
+            B: "Ideologi bangsa",
+            C: "Cita-cita dan tujuan bangsa Indonesia",
+            D: "Way of life",
+            E: "Kepribadian Bangsa Indonesia",
+          },
+          key: "E",
+          discussion:
+            "Sikap mental dan tingkah laku yang menjadi ciri khas bangsa adalah definisi Pancasila sebagai Kepribadian Bangsa.",
+        },
+        {
+          id: 4,
+          type: "TWK",
+          question:
+            "Lambang diyakini sebagai salah satu pendorong keberhasilan suatu cita-cita. Padi dan kapas pada burung Garuda melambangkan...",
+          image: null,
+          options: {
+            A: "Ketuhanan Yang Maha Esa",
+            B: "Kemanusiaan yang adil dan beradab",
+            C: "Persatuan Indonesia",
+            D: "Kerakyatan yang dipimpin oleh hikmat kebijaksanaan",
+            E: "Keadilan sosial bagi seluruh rakyat Indonesia",
+          },
+          key: "E",
+          discussion:
+            "Padi dan kapas melambangkan pangan dan sandang, simbol kemakmuran yang merupakan tujuan Sila ke-5.",
+        },
+        {
+          id: 5,
+          type: "TWK",
+          question: "Hari Kesaktian Pancasila diperingati setiap tanggal...",
+          image: null,
+          options: {
+            A: "1 Juni",
+            B: "22 Juni",
+            C: "30 September",
+            D: "1 Oktober",
+            E: "10 November",
+          },
+          key: "D",
+          discussion:
+            "1 Oktober diperingati sebagai Hari Kesaktian Pancasila berkaitan dengan peristiwa G30S/PKI. (Catatan: 1 Juni adalah Hari Lahir Pancasila).",
+        },
+        {
+          id: 6,
+          type: "TWK",
+          question:
+            "UUD 1945 sebelum diamandemen menegaskan bahwa kedaulatan diatur di tangan rakyat dan dilakukan sepenuhnya oleh ...",
+          image: null,
+          options: {
+            A: "MPR",
+            B: "DPR",
+            C: "Presiden",
+            D: "MA",
+            E: "Perdana Menteri",
+          },
+          key: "A",
+          discussion: "Kedaulatan rakyat ada di MPR.",
+        },
+        {
+          id: 7,
+          type: "TWK",
+          question:
+            "UUD 1945 merupakan konstitusi pertama negara Republik Indonesia yang berlaku mulai tanggal ...",
+          image: null,
+          options: {
+            A: "17 Agustus 1945-17 Agustus 1948",
+            B: "17 Agustus 1945-17 Agustus 1950",
+            C: "18 Agustus 1945-27 Desember 1949",
+            D: "17 Agustus 1945-17 Agustus 1949",
+            E: "20 Agustus 1945-17 Agustus 1949",
+          },
+          key: "C",
+          discussion:
+            "UUD 1945 merupakan konstitusi pertama negara Republik Indonesia yang berlaku mulai tanggal 18 Agustus 1945-27 Desember 1949.",
+        },
+        {
+          id: 8,
+          type: "TWK",
+          question:
+            "Alasan kembalinya pada UUD 1945 adalah bahwa UUD 1945 dianggap sebagai",
+          image: null,
+          options: {
+            A: "Konstitusi pertama yang berlaku",
+            B: "Warisan nenek moyang",
+            C: "Konstitusi yang dianggap mampu menjaga kesatuan dan persatuan bangsa",
+            D: "Konstitusi yang paling baik saat ini",
+            E: "Konstitusi yang cocok untuk bangsa indonesia",
+          },
+          key: "C",
+          discussion:
+            "Alasan kembalinya pada UUD 1945 adalah bahwa UUD 1945 dianggap sebagai Konstitusi yang dianggap mampu menjaga kesatuan dan persatuan bangsa.",
+        },
+        {
+          id: 9,
+          type: "TWK",
+          question:
+            "Tujuan perubahan UUD 1945 yaitu menyempurnakan aturan dasar mengenai jaminan dan perlindungan HAM agar sesuai dengan perkembangan paham HAM dan peradaban umat manusia yang merupakan syarat bagi suatu negara hukum yang tercantum dalam",
+          image: null,
+          options: {
+            A: "Hukum Internasional",
+            B: "UUD 1945",
+            C: "Kitab Undang-Undang Hukum Pidana",
+            D: "Pancasila",
+            E: "Pancasila",
+          },
+          key: "B",
+          discussion: "Tujuan perubahan UUD 1945 tercantum dalam UUD 1945.",
+        },
+        {
+          id: 10,
+          type: "TWK",
+          question:
+            "Terbentuknya negara melalui adanya kelebihan dan dominasi seseorang atas orang lain, pemahaman itu merupakan intisari dari ...",
+          image: null,
+          options: {
+            A: "Teori perjanjian",
+            B: "Teori pemerintahan",
+            C: "Teori politik",
+            D: "Teori yuridis",
+            E: "Teori kekuasaan",
+          },
+          key: "E",
+          discussion:
+            "Teori kekuasaan yang bersifat fisik: yaitu yang kuatlah yang berkuasa (ajaran yang dianut oleh Machiaveli).",
+        },
+        {
+          id: 11,
+          type: "TWK",
+          question:
+            "Suatu negara merdeka dan berdaulat yang memiliki kekuasaan asli para pemerintah pusat, negara tersebut berbentuk",
+          image: null,
+          options: {
+            A: "Serikat",
+            B: "Dominion",
+            C: "Kesatuan",
+            D: "Protektorat",
+            E: "Uni",
+          },
+          key: "E",
+          discussion:
+            "Uni adalah gabungan dari beberapa Negara yang dikepalai oleh seorang raja dan memiliki kekuasaan asli pemerintah pusat.",
+        },
+        {
+          id: 12,
+          type: "TWK",
+          question:
+            "Tokoh yang mengusulkan agar yang menandatangani naskah proklamasi cukup Soekarno dan Hatta atas nama bangsa Indonesia adalah",
+          image: null,
+          options: {
+            A: "B.M. Diah",
+            B: "Ahmad Subardjo",
+            C: "Chairul Saleh",
+            D: "Sukarni",
+            E: "Sayuti Melik",
+          },
+          key: "D",
+          discussion:
+            "Sukarni mengusulkan agar yang menandatangani teks proklamasi itu adalah Ir. Soekarno dan Drs. Moh. Hatta atas nama bangsa Indonesia.",
+        },
+        {
+          id: 13,
+          type: "TWK",
+          question:
+            "Untuk mengenang peristiwa Rengasdengklok tepatnya di markas bekas kompi Peta, dibangun",
+          image: null,
+          options: {
+            A: "Gedung Rengasdengklok",
+            B: "Perpustakaan Rengasdengklok",
+            C: "Monumen Rengasdengklok",
+            D: "Sekolah Rengasdengklok",
+            E: "Taman Rengasdengklok",
+          },
+          key: "C",
+          discussion:
+            "Monumen Kebulatan Tekad Tugu Perjuangan Rengasdengklok yang berada di Kampung Bojong Tugu, Desa Rengasdengklok Utara, Kecamatan Rengasdengklok, Kabupaten Karawang Provinsi Jawa Barat dibuat dengan tujuan untuk memperingati Perjuangan Pejuang Kemerdekaan dalam mempertahankan Kemerdekaan Republik Indonesia.",
+        },
+        {
+          id: 14,
+          type: "TWK",
+          question:
+            "Negara merupakan organisasi kekuasaan yang terdiri dari bermacam-macam suku bangsa, oleh karena itu harus",
+          image: null,
+          options: {
+            A: "Memberikan pelayanan terbaik",
+            B: "Memperhatikan kesempatan berusaha",
+            C: "Memajukan kesejahteraan umum",
+            D: "Mengutamakan pembangunan ekonomi",
+            E: "Melestarikan kehidupan setiap suku",
+          },
+          key: "E",
+          discussion:
+            "Keanekaragaman suku dan budaya merupakan kekayaan suatu bangsa, maka pemerintah bersama seluruh rakyatnya wajib melestarikan kehidupan setiap suku, agar tidak mengalami kepunahan.",
+        },
+        {
+          id: 15,
+          type: "TWK",
+          question:
+            "Di Indonesia dikenal dengan adanya sistem kekerabatan patrilineal dan matrilineal. Suku yang menganut sistem kekerabatan matrilineal adalah",
+          image: null,
+          options: {
+            A: "Batak",
+            B: "Rejang",
+            C: "Gayo",
+            D: "Bali",
+            E: "Minangkabau",
+          },
+          key: "E",
+          discussion:
+            "Sistem kekerabatan matrilineal adalah suatu adat masyarakat yang mengikuti garis keturunan berasal dari pihak ibu. Di Indonesia yang menganut sistem ini adalah suku Minangkabau di Sumatera Barat.",
+        },
+        {
+          id: 16,
+          type: "TWK",
+          question:
+            "Sumpah pemuda merupakan titik balik pemuda Indonesia untuk bersatu demi mewujudkan Indonesia merdeka. Yang membacakan sumpah pemuda adalah",
+          image: null,
+          options: {
+            A: "Amir Syafrudin",
+            B: "Moh. Yamin",
+            C: "Sugondo Joyopuspito",
+            D: "Djoko Marsaid",
+            E: "Rohjani",
+          },
+          key: "C",
+          discussion:
+            "Sugondo Joyopuspito adalah pemuda yang membacakan sumpah pemuda, ia juga merupakan ketua Kongres Pemuda II.",
+        },
+        {
+          id: 17,
+          type: "TWK",
+          question:
+            "Penanaman modal asing yang diterapkan pemerintah kolonial belanda ternyata mampu membawa perubahan sosial dalam masyarakat Indonesia, yaitu",
+          image: null,
+          options: {
+            A: "Timbulnya golongan buruh dan pengusaha",
+            B: "Masyarakat Indonesia mulai mengenal sistem uang",
+            C: "Tumbuhnya golongan terpelajar",
+            D: "Terjadinya pengambilalihan tanah pedesaan",
+            E: "Taraf hidup dan tingkat sosial ekonomi masyarakat meningkat",
+          },
+          key: "B",
+          discussion:
+            "Sejak dibukanya Indonesia bagi penanam modal swasta asing, banyak perkebunan yang berdiri dan masyarakat Indonesia mulai mengenal sistem uang. Mereka beralih profesi menjadi buruh pabrik dan perkebunan yang digaji dengan uang, sehingga mereka mengenal sistem uang sebagai alat tukar.",
+        },
+        {
+          id: 18,
+          type: "TWK",
+          question:
+            "Yang bukan merupakan Tugas MPR sebelum dilakukan amandemen adalah",
+          image: null,
+          options: {
+            A: "Menetapan GBHN",
+            B: "Menetapkan dan mengubah UUD",
+            C: "Melantik Presiden dan Wakilnya",
+            D: "Memilih Presiden dan Wakilnya",
+            E: "Pelaksanaan kedaulatan rakyat",
+          },
+          key: "C",
+          discussion:
+            "Sesuai materi tata negara bagian susunan lembaga tinggi negara, telah dijelaskan tugas-tugas MPR. Yang tidak termasuk adalah melantik presiden.",
+        },
+        {
+          id: 19,
+          type: "TWK",
+          question: "Sistem pemerintahan menurut UUD 1945 menegaskan bahwa ..",
+          image: null,
+          options: {
+            A: "Kekuasaan kepala negara tak terbatas",
+            B: "Kekuasaan kepala negara perlu dibatasi",
+            C: "Kekuasaan kepala negara sangat terbatas",
+            D: "Kekuasaan kepala negara seumur hidup",
+            E: "Kekuasaan kepala negara tidak tak terbatas.",
+          },
+          key: "E",
+          discussion:
+            "Sistem pemerintahan menurut UUD 1945 menegaskan bahwa Kekuasaan kepala negara tidak tak terbatas, yang berarti kekuasaan kepala negara terbatas.",
+        },
+        {
+          id: 20,
+          type: "TWK",
+          question:
+            "Dengan adanya prinsip otonomi seluas-luasnya, daerah diberi kewenangan mengatur urusan pemerintahannya sendiri, kecuali di bidang...",
+          image: null,
+          options: {
+            A: "Agama",
+            B: "Perekonomian",
+            C: "Wilayah",
+            D: "Sosial Masyarakat",
+            E: "SDA",
+          },
+          key: "A",
+          discussion: "Bidang agama tidak diatur dalam otonomi daerah.",
+        },
+        {
+          id: 21,
+          type: "TWK",
+          question:
+            "Pada hakikatnya setiap warga negara berhak atas pekerjaan dan penghidupan yang layak bagi kemanusiaan. Aturan dasar ini tercantum dalam UUD 1945...",
+          image: null,
+          options: {
+            A: "Bab X Pasal 27 (1)",
+            B: "Bab X Pasal 27 (2)",
+            C: "Bab X Pasal 28 (1)",
+            D: "Bab XII Pasal 30 (1)",
+            E: "Bab XII Pasal 30 (2)",
+          },
+          key: "D",
+          discussion:
+            "Bab XII Pasal 30 (1) menjelaskan tentang pada hakikatnya setiap warga negara berhak atas pekerjaan dan penghidupan yang layak bagi kemanusiaan.",
+        },
+        {
+          id: 22,
+          type: "TWK",
+          question: "Hukum yang positif adalah hukum yang ...",
+          image: null,
+          options: {
+            A: "Mengatur tata cara melaksanakan dan mempertahankan hukum",
+            B: "Berisi perintah dan larangan",
+            C: "Hanya berlaku pada masyarakat tertentu",
+            D: "Berlaku sekarang",
+            E: "Berlaku di masa mendatang",
+          },
+          key: "D",
+          discussion: "Hukum yang positif adalah hukum yang berlaku sekarang.",
+        },
+        {
+          id: 23,
+          type: "TWK",
+          question:
+            "Menurut aturan yang tercantum dalam UUD 1945, kedaulatan rakyat adalah di tangan rakyat dan dilakukan sepenuhnya oleh MPR yang anggotanya terdiri dari unsur-unsur kecuali...",
+          image: null,
+          options: {
+            A: "Utusan daerah",
+            B: "Utusan golongan",
+            C: "Utusan partai politik",
+            D: "Utusan TNI",
+            E: "Utusan pemerintah",
+          },
+          key: "E",
+          discussion:
+            "Kedaulatan rakyat adalah di tangan rakyat dan dilakukan sepenuhnya oleh MPR yang anggotanya terdiri dari unsur-unsur seperti utusan daerah, golongan, politik, TNI.",
+        },
+        {
+          id: 24,
+          type: "TWK",
+          question:
+            "Setiap negara memiliki sifat tidak tetap dan harus mengalami perubahan. Oleh karena itu, harus dikembangkan pola pemerintahan yang relatif tahan terhadap gejolak yang akan datang. Hal ini disebut juga",
+          image: null,
+          options: {
+            A: "Kompleksitas",
+            B: "Keragaman",
+            C: "Integritas",
+            D: "Dinamika",
+            E: "Pluralitas",
+          },
+          key: "D",
+          discussion:
+            "Sifat tidak tetap dan harus mengalami perubahan ini disebut dinamika.",
+        },
+        {
+          id: 25,
+          type: "TWK",
+          question:
+            "Demokrasi adalah pemerintahan yang berasal dari rakyat, dilakukan oleh rakyat, dan untuk kepentingan rakyat sehingga kedaulatan berada di tangan rakyat. Kedaulatan rakyat sepenuhnya dilakukan oleh",
+          image: null,
+          options: {
+            A: "DPR dan MPR",
+            B: "DPA dan BPK",
+            C: "Presiden",
+            D: "DPR",
+            E: "MPR",
+          },
+          key: "A",
+          discussion:
+            "Kedaulatan rakyat sepenuhnya dilakukan oleh DPR dan MPR sebagai lembaga legislatif.",
+        },
+        {
+          id: 26,
+          type: "TWK",
+          question:
+            "Salah satu Negara dibawah yang masih menganut system demokrasi parlementer hingga saat ini adalah",
+          image: null,
+          options: {
+            A: "Inggris",
+            B: "Amerika",
+            C: "Belgia",
+            D: "Argentina",
+            E: "China",
+          },
+          key: "A",
+          discussion:
+            "Negara yang masih menganut system demokrasi parlementer hingga saat ini contohnya adalah Perancis dan Inggris.",
+        },
+        {
+          id: 27,
+          type: "TWK",
+          question:
+            "Masuknya pengaruh Hindu pertama kali dibuktikan dengan adanya penemuan prasasti dari kerajaan...",
+          image: null,
+          options: {
+            A: "Kutai",
+            B: "Sriwijaya",
+            C: "Tarumanegara",
+            D: "Mataram Hindu",
+            E: "Majapahit",
+          },
+          key: "A",
+          discussion:
+            "Masuknya pengaruh Hindu pertama kali dibuktikan dengan adanya penemuan prasasti dari kerajaan Kutai.",
+        },
+        {
+          id: 28,
+          type: "TWK",
+          question:
+            "Gubernur VOC yang memaksa dan memerintahkan rakyat untuk membuat jalan raya Anyer - Panarukan adalah",
+          image: null,
+          options: {
+            A: "Raffles",
+            B: "Pieter Both",
+            C: "Van den Bosch",
+            D: "Daendels",
+            E: "Van der Capllen",
+          },
+          key: "D",
+          discussion:
+            "Daendels adalah yang memerintahkan pembangunan jalan tersebut. Van den Bosch adalah gubernur jenderal Hindia-Belanda penggagas tanam paksa. Van der Capellen adalah penguasa Hindia-Belanda pertama yang memerintah di Hindia setelah dikuasai oleh Kerajaan Inggris selama beberapa tahun.",
+        },
+        {
+          id: 29,
+          type: "TWK",
+          question:
+            "Pada abad pertengahan (6-15 M) kehidupan sosial dan spiritual masyarakat barat dikuasai oleh seorang",
+          image: null,
+          options: {
+            A: "Paus",
+            B: "Presiden",
+            C: "Raja",
+            D: "Misionaris",
+            E: "Jenderal",
+          },
+          key: "A",
+          discussion:
+            "Pada abad pertengahan (6-15 M) kehidupan sosial dan spiritual masyarakat barat terpusat pada doktrin gereja yang dikuasai oleh seorang Paus.",
+        },
+        {
+          id: 30,
+          type: "TWK",
+          question:
+            "Upaya USA membendung luasnya komunisme di Asia Tenggara diwujudkan dalam membentuk ...",
+          image: null,
+          options: {
+            A: "OAS",
+            B: "CENTO",
+            C: "ANZUS",
+            D: "SEATO",
+            E: "NATO",
+          },
+          key: "D",
+          discussion:
+            "SEATO (South East Asia Threaty Organization) merupakan organisasi bentukan USA sebagai upaya USA membendung luasnya komunisme di Asia Tenggara.",
+        },
+        // --- TIU (31-65) ---
+        {
+          id: 31,
+          type: "TIU",
+          question:
+            "Kebijakan dunia yang berisi untuk mengurangi emisi gas rumah kaca tertuang dalam... ",
+          image: null,
+          options: {
+            A: "Protocol Montreal",
+            B: "The Global Warming Conferency",
+            C: "Konferensi Greenpeace",
+            D: "Protocol Kyoto",
+            E: "Konferensi Lingkungan di Bali",
+          },
+          key: "D",
+          discussion:
+            "Protocol Kyoto adalah sebuah amandemen terhadap Konvensi Rangka Kerja PBB tentang Perubahan Iklim (UNFCC). Negara-negara yang meratifikasi protocol ini berkomitmen untuk mengurangi emisi karbon dioksida dan gas rumah kaca lainnya. ",
+        },
+        {
+          id: 32,
+          type: "TIU",
+          question:
+            "Bacaan: 'Secara ekonomis, kelayakan pendanaan proyek ini masih dalam tahap pembicaraan antara pemerintah Jepang dan Indonesia,' kata Sutiyoso. 'Padahal studi kelayakan bidang teknik untuk proyek Subway di Jakarta sudah selesai.' Di dalam teks tersebut tidak ada pernyataan... ",
+          image: null,
+          options: {
+            A: "Proyek subway itu akan didanai oleh negara asing",
+            B: "Studi kelayakan untuk proyek itu sudah rampung",
+            C: "Proyek itu akan dilaksanakan di beberapa kota besar",
+            D: "Apakah proyek ini bernilai ekonomis atau tidak, belum diketahui",
+            E: "Kelayakan pendanaan proyek ini masih dalam tahap pembicaraan",
+          },
+          key: "C",
+          discussion:
+            "Pernyataan yang tidak ada dalam teks adalah Proyek itu akan dilaksanakan di beberapa kota besar. ",
+        },
+        {
+          id: 33,
+          type: "TIU",
+          question:
+            "Berdasarkan bacaan soal sebelumnya, yang dimaksud dengan proyek subway berhubungan dengan ... ",
+          image: null,
+          options: {
+            A: "Jalan raya",
+            B: "Lalu lintas",
+            C: "Perkereta-apian",
+            D: "Tata kota",
+            E: "Kemacetan",
+          },
+          key: "C",
+          discussion:
+            "Berdasarkan bacaan tersebut, proyek subway berhubungan dengan perkereta-apian. ",
+        },
+        {
+          id: 34,
+          type: "TIU",
+          question:
+            "... sektor pertanian dan transportasi bagi kabupaten Wonogiri sebesar Rp229,8 miliar atau 10,2% dari total kegiatan ekonomi. Kata yang tepat untuk melengkapi kalimat di atas adalah ... ",
+          image: null,
+          options: {
+            A: "Distribusi",
+            B: "Kontribusi",
+            C: "Kuantitas",
+            D: "Komoditas",
+            E: "Aktifitas",
+          },
+          key: "B",
+          discussion:
+            "Kata yang tepat adalah Kontribusi (sumbangan). Distribusi (pembagian), Kuantitas (jumlah), Komoditas (barang dagangan), Aktifitas (tindakan). ",
+        },
+        {
+          id: 35,
+          type: "TIU",
+          question:
+            "Setelah gas pertanian di Porong meledak dan menewaskan serta melukai beberapa orang, pemerintah menyebut luapan lumpur sebagai disaster. Makna kata disaster pada kalimat di atas adalah... ",
+          image: null,
+          options: {
+            A: "Kecelakaan",
+            B: "Musibah",
+            C: "Bencana",
+            D: "Kelalaian",
+            E: "Kecerobohan",
+          },
+          key: "C",
+          discussion:
+            "Kata Disaster berarti bencana (sumber: kamus bahasa Inggris). ",
+        },
+        {
+          id: 36,
+          type: "TIU",
+          question: "REKOGNISI = ... ",
+          image: null,
+          options: {
+            A: "Pengembalian",
+            B: "Pemberitahuan",
+            C: "Pengakuan",
+            D: "Tuntutan",
+            E: "Pengampunan",
+          },
+          key: "C",
+          discussion:
+            "Rekognisi = (1) hal atau keadaan yang diakui; pengakuan; (2) pengenalan; (3) penghargaan. ",
+        },
+        {
+          id: 37,
+          type: "TIU",
+          question: "SABAN = ... ",
+          image: null,
+          options: {
+            A: "Jarang",
+            B: "Sekali",
+            C: "Tiap-tiap",
+            D: "Pernah",
+            E: "Selalu",
+          },
+          key: "C",
+          discussion:
+            "Saban berasal dari bahasa daerah (Betawi) yang artinya tiap-tiap. ",
+        },
+        {
+          id: 38,
+          type: "TIU",
+          question: "ANGOT = ... ",
+          image: null,
+          options: {
+            A: "Atau",
+            B: "Kumat",
+            C: "Andai",
+            D: "Kacau",
+            E: "Sering",
+          },
+          key: "B",
+          discussion:
+            "Angot berasal dari bahasa jawa yang artinya sakit lagi atau kumat lagi; sakit gila; datang lagi penyakitnya. ",
+        },
+        {
+          id: 39,
+          type: "TIU",
+          question: "ULTIMA >< ... ",
+          image: null,
+          options: {
+            A: "Final",
+            B: "Kesan",
+            C: "Biasa",
+            D: "Awal",
+            E: "Pesan",
+          },
+          key: "D",
+          discussion:
+            "Ultima artinya (bagian) akhir; final. Jadi, lawannya adalah awal. ",
+        },
+        {
+          id: 40,
+          type: "TIU",
+          question: "NAAS >< ... ",
+          image: null,
+          options: {
+            A: "Untung",
+            B: "Celaka",
+            C: "Rugi",
+            D: "Baik",
+            E: "Bangkrut",
+          },
+          key: "A",
+          discussion:
+            "Naas artinya sial, nasib (menimpanya dalam suatu kecelakaan). Jadi, lawannya adalah untung. ",
+        },
+        {
+          id: 41,
+          type: "TIU",
+          question: "CHAOS >< ... ",
+          image: null,
+          options: {
+            A: "Hancur",
+            B: "Labil",
+            C: "Normal",
+            D: "Kacau",
+            E: "Berantakan",
+          },
+          key: "C",
+          discussion:
+            "Chaos artinya abnormal/kacau, jadi lawannya adalah normal. ",
+        },
+        {
+          id: 42,
+          type: "TIU",
+          question: "DANA : PENGGELAPAN = ... ",
+          image: null,
+          options: {
+            A: "Uang : Brankas",
+            B: "Karya Tulis : Penjiplakan",
+            C: "Deposito : Perbankan",
+            D: "Cek : Akuntansi",
+            E: "Kanvas : Lukisan",
+          },
+          key: "B",
+          discussion:
+            "Analogi: Dana bisa digelapkan; Karya tulis bisa dijiplak. ",
+        },
+        {
+          id: 43,
+          type: "TIU",
+          question: "KARDIOLOGI : JANTUNG = ... ",
+          image: null,
+          options: {
+            A: "Phatologi : Peta",
+            B: "Farmakologi : Obat-Obatan",
+            C: "Akuntansi : Perusahaan",
+            D: "Biologi : Ilmu",
+            E: "Matematika : Kalkulator",
+          },
+          key: "B",
+          discussion:
+            "Kardiologi adalah ilmu yang mempelajari jantung, Farmakologi adalah ilmu yang mempelajari obat-obatan. ",
+        },
+        {
+          id: 44,
+          type: "TIU",
+          question: "NELAYAN : PERAHU = ... ",
+          image: null,
+          options: {
+            A: "Koki : Oven",
+            B: "Penulis : Pena",
+            C: "Fotografer : Kamera",
+            D: "Petani : Traktor",
+            E: "Menjahit : Baju",
+          },
+          key: "D",
+          discussion:
+            "Nelayan menggunakan perahu sebagai kendaraan kerja, Petani menggunakan traktor sebagai kendaraan kerja. ",
+        },
+        {
+          id: 45,
+          type: "TIU",
+          question: "HUMOR : KOMEDIAN = ... ",
+          image: null,
+          options: {
+            A: "Memori : Amnesia",
+            B: "Heroisme : Epik",
+            C: "Klimaks : Drama",
+            D: "Perceraian : Pernikahan",
+            E: "Surat : Undangan",
+          },
+          key: "B",
+          discussion:
+            "Humor dihasilkan oleh komedian, Heroisme (kepahlawanan) dihasilkan/diceritakan dalam epik (syair kepahlawanan). ",
+        },
+        {
+          id: 46,
+          type: "TIU",
+          question:
+            "Dion membeli 20 kg beras jenis A seharga Rp 6.000,00/kg dan 30 kg beras jenis B dengan harga Rp 4.000,00/kg. Kedua jenis beras tersebut kemudian dicampur. Agar Dion mendapat untung 4%, maka beras tersebut dijual seharga ... /kg. ",
+          image: null,
+          options: {
+            A: "Rp 4.992,00",
+            B: "Rp 5.720,00",
+            C: "Rp 5.992,00",
+            D: "Rp 6.720,00",
+            E: "Rp 6.992,00",
+          },
+          key: "A",
+          discussion:
+            "Harga impas = [(20x6000)+(30x4000)] / (20+30) = (120000+120000)/50 = 4800. Harga jual laba 4% = 4800 + (4% x 4800) = 4800 + 192 = 4992. ",
+        },
+        {
+          id: 47,
+          type: "TIU",
+          question:
+            "Pada tahun 2010 sebuah pabrik gula memproduksi gula pasir sebanyak ... ton. Jika kebijakan produksi untuk tahun 2011 dan 2012 ditetapkan kenaikannya sebesar 125% dari produksi tahun 2010, berapa ton jumlah produksi gula pasir pabrik tersebut dalam tiga tahun terakhir ini? ",
+          image: null,
+          options: {
+            A: "Tak dapat ditentukan",
+            B: "196,48",
+            C: "282,94",
+            D: "479,42",
+            E: "480,57",
+          },
+          key: "A",
+          discussion:
+            "Besarnya produksi dalam 3 tahun terakhir tidak dapat ditentukan karena data produksi gula dasar pada tahun 2010 tidak diketahui (titik-titik). ",
+        },
+        {
+          id: 48,
+          type: "TIU",
+          question:
+            "Ukuran sebuah kota pada suatu peta adalah panjang 12 cm dan lebar 9 cm. Apabila peta tersebut mempunyai skala 1: 200, luas sebenarnya dari kota tersebut adalah ... m². ",
+          image: null,
+          options: {
+            A: "108",
+            B: "216",
+            C: "420",
+            D: "432",
+            E: "430",
+          },
+          key: "D",
+          discussion:
+            "Panjang sebenarnya = 12 x 200 = 2400 cm. Lebar sebenarnya = 9 x 200 = 1800 cm. Luas = 2400 x 1800 = 4.320.000 cm² = 432 m². ",
+        },
+        {
+          id: 49,
+          type: "TIU",
+          question:
+            "Sebuah mesin dapat memotong sejenis kayu dalam 6 menit dan seorang tukang kayu dengan menggunakan gergaji tangan dapat melakukan pekerjaan tersebut dalam 18 menit. Setelah 4 menit, listrik padam dan kayu tersebut harus dipotong dengan gergaji tangan. Berapa menit yang diperlukan tukang kayu untuk menyelesaikan pemotongan kayu tersebut? ",
+          image: null,
+          options: {
+            A: "2 menit",
+            B: "6 menit",
+            C: "12 menit",
+            D: "14 menit",
+            E: "15 menit",
+          },
+          key: "B",
+          discussion:
+            "Kecepatan mesin = 1/6 bagian/menit. Dikerjakan 4 menit = 4/6 = 2/3 bagian selesai. Sisa = 1/3 bagian. Waktu manual = 1/3 x 18 menit = 6 menit. ",
+        },
+        {
+          id: 50,
+          type: "TIU",
+          question:
+            "Jika x adalah 27,8% dari 45 dan y adalah 45% dari 27,8 maka... ",
+          image: null,
+          options: {
+            A: "x > y",
+            B: "x < y",
+            C: "x = y",
+            D: "Hubungan x dan y tidak dapat ditentukan",
+            E: "x ≠ y",
+          },
+          key: "C",
+          discussion:
+            "x = (27.8/100) * 45. y = (45/100) * 27.8. Sifat komutatif perkalian berlaku, maka x = y. ",
+        },
+        {
+          id: 51,
+          type: "TIU",
+          question:
+            "Jika p sembarang bilangan, x = 3p² + 5 dan y = 2p² + 4, manakah pernyataan berikut yang benar? ",
+          image: null,
+          options: {
+            A: "x > y",
+            B: "x < y",
+            C: "x = y",
+            D: "Hubungan x dan y tidak dapat ditentukan",
+            E: "x ≠ y",
+          },
+          key: "A",
+          discussion:
+            "x - y = (3p² + 5) - (2p² + 4) = p² + 1. Karena p² selalu positif atau 0, maka p² + 1 selalu positif. Jadi x > y. ",
+        },
+        {
+          id: 52,
+          type: "TIU",
+          question:
+            "Nilai mata kuliah Tono: Agama=80, Akuntansi=85, B.Indo=70, Mat.Ekonomi=90, B.Inggris=70, Pancasila=80, Perpajakan=70. Berapakah median dari nilai tersebut? ",
+          image: null,
+          options: {
+            A: "70",
+            B: "78",
+            C: "80",
+            D: "90",
+            E: "85",
+          },
+          key: "C",
+          discussion:
+            "Urutkan data: 70, 70, 70, 80, 80, 85, 90. Nilai tengah (data ke-4) adalah 80. ",
+        },
+        {
+          id: 53,
+          type: "TIU",
+          question:
+            "Di dalam suatu kelas terdapat 30 siswa dan nilai rata-rata tes matematika adalah p. Pak guru matematika mereka menaikkan nilai setiap siswa sebesar 10. Tentukan rata-rata nilai baru siswa tersebut! ",
+          image: null,
+          options: {
+            A: "p + 300",
+            B: "10p",
+            C: "p + 10",
+            D: "p + 30",
+            E: "30p",
+          },
+          key: "C",
+          discussion:
+            "Jika setiap data ditambah konstanta k, maka rata-rata baru = rata-rata lama + k. Jadi rata-rata baru = p + 10. ",
+        },
+        {
+          id: 54,
+          type: "TIU",
+          question:
+            "Aditya dapat mengepak buku sebanyak 112 buah sehari, sedangkan pembantunya hanya dapat mengepak dengan kecepatan 1/4 kecepatan Aditya. Berapa lamakah waktu yang diperlukan mereka berdua untuk mengepak 560 buku? ",
+          image: null,
+          options: {
+            A: "1/2 hari",
+            B: "2 hari",
+            C: "4 hari",
+            D: "8 hari",
+            E: "6 hari",
+          },
+          key: "C",
+          discussion:
+            "Aditya = 112/hari. Pembantu = 1/4 x 112 = 28/hari. Total kecepatan = 112 + 28 = 140/hari. Waktu = 560 / 140 = 4 hari. ",
+        },
+        {
+          id: 55,
+          type: "TIU",
+          question:
+            "Sebuah mobil dapat menempuh 20 mil per galon bensin jika berjalan dengan kecepatan 50 mil/jam. Dengan kecepatan 60 mil/jam, jarak yang dapat ditempuh berkurang 12%. Berapakah jarak yang dapat ditempuh oleh mobil tersebut dengan 11 galon bensin dan berkecepatan 60 mil/jam? ",
+          image: null,
+          options: {
+            A: "195,1 mil",
+            B: "200 mil",
+            C: "204,3 mil",
+            D: "193,6 mil",
+            E: "196 mil",
+          },
+          key: "D",
+          discussion:
+            "Efisiensi baru = 20 mil/galon - (12% x 20) = 20 - 2.4 = 17.6 mil/galon. Jarak total = 11 galon x 17.6 mil/galon = 193.6 mil. ",
+        },
+        {
+          id: 56,
+          type: "TIU",
+          question:
+            "Dari 100 siswa, 39 gemar olahraga. Diantara penggemar olahraga, ada 11 orang siswa juga gemar bermain musik. Jika ada 32 siswa tidak gemar olahraga maupun musik, maka banyaknya penggemar musik dari 100 siswa itu adalah ... ",
+          image: null,
+          options: {
+            A: "29",
+            B: "39",
+            C: "40",
+            D: "71",
+            E: "45",
+          },
+          key: "C",
+          discussion:
+            "Total = (Olahraga Saja) + (Musik Saja) + (Keduanya) + (Tidak Keduanya). Atau rumus gabungan: Total = n(O U M) + n(Tidak). 100 = n(O U M) + 32 -> n(O U M) = 68. Rumus n(O U M) = n(O) + n(M) - n(Irisan). 68 = 39 + n(M) - 11. 68 = 28 + n(M). n(M) = 40. ",
+        },
+        {
+          id: 57,
+          type: "TIU",
+          question:
+            "Dari 60 orang anak, diketahui bahwa 37 orang diantaranya menyukai sayuran, 19 orang menyukai ikan, dan x orang tidak menyukai keduanya. Berapa orang anak yang menyukai sayuran dan ikan? ",
+          image: null,
+          options: {
+            A: "x + 4",
+            B: "x - 4",
+            C: "x - 56",
+            D: "x + 56",
+            E: "x + 65",
+          },
+          key: "B",
+          discussion:
+            "Total = n(Sayur) + n(Ikan) - n(Irisan) + n(Tidak). 60 = 37 + 19 - n(Irisan) + x. 60 = 56 + x - n(Irisan). n(Irisan) = 56 + x - 60. n(Irisan) = x - 4. ",
+        },
+        {
+          id: 58,
+          type: "TIU",
+          question: "Deret: 8, 24, 22, 56, 18, ... ",
+          image: null,
+          options: {
+            A: "122",
+            B: "124",
+            C: "126",
+            D: "128",
+            E: "130",
+          },
+          key: "B",
+          discussion:
+            "Pola bersusun/lompat yang menghasilkan angka selanjutnya 124. ",
+        },
+        {
+          id: 59,
+          type: "TIU",
+          question: "Deret Huruf: D, E, E, F, F, G, ... ",
+          image: null,
+          options: {
+            A: "H dan I",
+            B: "G dan G",
+            C: "G dan H",
+            D: "G dan I",
+            E: "H dan H",
+          },
+          key: "C",
+          discussion:
+            "Polanya adalah pengulangan huruf dua kali secara berurutan atau selang-seling +1. Kelanjutannya adalah G, lalu H. ",
+        },
+        {
+          id: 60,
+          type: "TIU",
+          question:
+            "Semua menu makanan restoran B diolah dari bahan organik. Semua menu dengan bahan organik diolah dengan cara tidak digoreng. Kesimpulannya... ",
+          image: null,
+          options: {
+            A: "Sebagian menu makanan diolah tanpa menggunakan minyak (tidak digoreng).",
+            B: "Semua menu yang diolah dengan cara digoreng bukan menu restoran B.",
+            C: "Semua menu restoran B diolah tanpa digoreng dengan minyak.",
+            D: "Sebagian menu restoran B dengan bahan organik diolah dengan cara digoreng.",
+            E: "Semua menu diolah dengan cara digoreng menggunakan bahan organik.",
+          },
+          key: "C",
+          discussion:
+            "Logika silogisme: A=B, B=C, maka A=C. Semua menu B = organik. Semua organik = tidak digoreng. Jadi, Semua menu B = tidak digoreng. ",
+        },
+        {
+          id: 61,
+          type: "TIU",
+          question:
+            "Jika Tono lulus kurang dari satu atau sama dengan 4 tahun, maka ia akan diterima berkerja sebagai karyawan di perusahaan A. Jika Tono sudah bekerja di perusahaan A, maka ayahnya akan membelikan Tono sebuah sepeda motor. Tono tidak mendapat sepeda motor dari ayahnya. ",
+          image: null,
+          options: {
+            A: "Tono menyeleseikan studinya kurang dari 4 tahun.",
+            B: "Tono menyeleseikan studinya lebih dari 4 tahun.",
+            C: "Tono bekerja di perusahaan A.",
+            D: "Tono menyeleseikan studinya tepat 4 tahun.",
+            E: "Tono bekerja dengan sepeda motor.",
+          },
+          key: "B",
+          discussion:
+            "Modus Tollens. Tidak dapat motor -> Tidak kerja di A. Tidak kerja di A -> Tidak lulus <= 4 tahun (Artinya lulus > 4 tahun). ",
+        },
+        {
+          id: 62,
+          type: "TIU",
+          question:
+            "Analitik: Jadwal olahraga. Amir & Shafira wajib renang. Rara & Kiki sepakat badminton. Hanya Rara & Wahyu tidak basket. Rara tidak tenis meja. Jadwal: Basket/Karate (Selasa), Badminton/Renang (Kamis), Baseball/Tenis Meja (Jumat). Olahraga apa yang bisa dilakukan oleh Rara dan Shafira secara bersamaan? ",
+          image: null,
+          options: {
+            A: "Basket",
+            B: "Badminton",
+            C: "Renang",
+            D: "Baseball",
+            E: "Karate",
+          },
+          key: "D",
+          discussion:
+            "Analisis jadwal: Kamis (Renang/Badminton) tidak bisa bersama karena Shafira wajib Renang, Rara wajib Badminton. Selasa (Basket/Karate), Rara tidak Basket. Jumat (Baseball/Tenis Meja), Rara tidak Tenis Meja -> Rara Baseball. Shafira bisa Baseball. ",
+        },
+        {
+          id: 63,
+          type: "TIU",
+          question: "Perhatikan gambar berikut dan tentukan kelanjutannya!",
+          image: "soal63.jpg", // Gambar Soal
+          optionType: "image", // <--- TAMBAHAN PENTING: Penanda bahwa opsinya adalah gambar
+          options: {
+            A: "jawabanAsoal63.jpg",
+            B: "jawabanBsoal63.jpg",
+            C: "jawabanCsoal63.jpg",
+            D: "jawabanDsoal63.jpg",
+            E: "jawabanEsoal63.jpg",
+          },
+          key: "B",
+          discussion: "Pola gambar (Figural).",
+        },
+        {
+          id: 64,
+          type: "TIU",
+          question: "Perhatikan gambar berikut dan tentukan kelanjutannya!",
+          image: "soal64.jpg",
+          optionType: "image", // <--- Penanda opsi gambar
+          options: {
+            A: "jawabanAsoal64.jpg",
+            B: "jawabanBsoal64.jpg",
+            C: "jawabanCsoal64.jpg",
+            D: "jawabanDsoal64.jpg",
+            E: "jawabanEsoal64.jpg",
+          },
+          key: "B",
+          discussion: "Pola gambar (Figural).",
+        },
+        {
+          id: 65,
+          type: "TIU",
+          question: "Perhatikan gambar berikut dan tentukan kelanjutannya!",
+          image: "soal65.jpg",
+          optionType: "image", // <--- Penanda opsi gambar
+          options: {
+            A: "jawabanAsoal65.jpg",
+            B: "jawabanBsoal65.jpg",
+            C: "jawabanCsoal65.jpg",
+            D: "jawabanDsoal65.jpg",
+            E: "jawabanEsoal65.jpg",
+          },
+          key: "C",
+          discussion: "Pola gambar (Figural).",
+        },
+        // --- TKP (66-100) ---
+        {
+          id: 66,
+          type: "TKP",
+          question:
+            "Kadangkala saya merasa lapar ketika jam kerja, maka yang saya lakukan adalah ...",
+          image: null,
+          options: {
+            A: "Menyelesaikan pekerjaan terlebih dahulu kemudian makan",
+            B: "Meminta izin atasan untuk makan",
+            C: "Meminta teman menggantikan kerja sebentar",
+            D: "Ke pantry segera membuat makanan",
+            E: "Pergi ke warung terdekat untuk membeli makan",
+          },
+          key: "A",
+          tkpMap: { A: 5, D: 4, B: 3, E: 2, C: 1 },
+          discussion: "Urutan poin 5-1: A, D, B, E, C.",
+        },
+        {
+          id: 67,
+          type: "TKP",
+          question:
+            "Ketika sedang diminta pimpinan untuk bekerja lembur, tiba-tiba ada telepon dari rumah memberi tahu bahwa anak sedang sakit, sikap kita ...",
+          image: null,
+          options: {
+            A: "Segera kembali ke rumah",
+            B: "Pekerjaan kantor lebih penting",
+            C: "Meminta istri untuk lembur selesai",
+            D: "Melihat dulu kondisinya, apabila sakit parah segera kembali rumah",
+            E: "Sudah ada istri dan pembantu di rumah",
+          },
+          key: "D",
+          tkpMap: { D: 5, E: 4, C: 3, A: 2, B: 1 },
+          discussion: "Urutan poin 5-1: D, E, C, A, B.",
+        },
+        {
+          id: 68,
+          type: "TKP",
+          question:
+            "Karena lembur kerja kemarin, siang ini saya merasa sangat mengantuk, kerjaan tidak ada yang selesai karena tidak fokus, sebaiknya saya ...",
+          image: null,
+          options: {
+            A: "Segera tidur siang",
+            B: "Segera makan siang",
+            C: "Meminta izin atasan untuk istirahat sejenak",
+            D: "Meminta teman untuk memijat",
+            E: "Segera ke musholah untuk tidur",
+          },
+          key: "C",
+          tkpMap: { C: 5, A: 4, E: 3, B: 2, D: 1 },
+          discussion: "Urutan poin 5-1: C, A, E, B, D.",
+        },
+        {
+          id: 69,
+          type: "TKP",
+          question:
+            "Saat ulang tahun pimpinan kantor, teman-teman seruangan berencana memberikan pesta kejutan, tapi kekurangan dana maka kami mengambil dana pembiayaan rapat, mengenai hal ini...",
+          image: null,
+          options: {
+            A: "Tidak apa-apa asalkan sedikit",
+            B: "Menolak rencana ini",
+            C: "Menghimbau agar patungan saja",
+            D: "Tidak ikut-ikutan",
+            E: "Memakai dana sponsor",
+          },
+          key: "C",
+          tkpMap: { C: 5, B: 4, D: 3, A: 2, E: 1 },
+          discussion: "Urutan poin 5-1: C, B, D, A, E.",
+        },
+        {
+          id: 70,
+          type: "TKP",
+          question:
+            "Jika saya sedang mengerjakan sesuatu, kondisi yang dapat mendukung saya bekerja optimal adalah",
+          image: null,
+          options: {
+            A: "Kondisi tenang dan santai",
+            B: "Saat tidak ada seorangpun dalam ruangan",
+            C: "Dengan ruangan nyaman dan dingin",
+            D: "Apapun kondisinya saya berusaha sekuat tenaga",
+            E: "Saya gunakan pikiran saya agar fokus pekerjaan bukan masalah tempat",
+          },
+          key: "E",
+          tkpMap: { E: 5, D: 4, A: 3, C: 2, B: 1 },
+          discussion: "Urutan poin 5-1: E, D, A, C, B.",
+        },
+        {
+          id: 71,
+          type: "TKP",
+          question:
+            "Target kerja dan beban kerja yang tinggi menurut saya adalah",
+          image: null,
+          options: {
+            A: "Suatu tantangan yang harus kita hadapi",
+            B: "Merupakan jalan kita untuk melangkah kedepan",
+            C: "Lebih baik saya menbgundurkan diri daripada saya stress",
+            D: "Merupakan jalan saya mencapai tingkat pimpinan tertinggi",
+            E: "Sebagai sarana melatih diri",
+          },
+          key: "D",
+          tkpMap: { D: 5, B: 4, A: 3, E: 2, C: 1 },
+          discussion: "Urutan poin 5-1: D, B, A, E, C.",
+        },
+        {
+          id: 72,
+          type: "TKP",
+          question:
+            "Ditengah proyek besar dan membutuhkan tanggung jawab besar saya mengalami kegagalan besar yang sangat mengancam karir saya, sebaiknya saya..",
+          image: null,
+          options: {
+            A: "Meminta maaf atas kegagalan saya",
+            B: "Bertanggung jawab sepenuhnya atas apa yang saya lakukan",
+            C: "Tidak berputus asa, saya jadikan kegagalan ini sebagai penguat langkah kedepan",
+            D: "Bertanggung jawab dengan segera mengundurkan diri dari pekerjaan",
+            E: "Mencari-cari dalang dibalik kegagalan ini",
+          },
+          key: "C",
+          tkpMap: { C: 5, B: 4, A: 3, E: 2, D: 1 },
+          discussion: "Urutan poin 5-1: C, B, A, E, D.",
+        },
+        {
+          id: 73,
+          type: "TKP",
+          question:
+            "Ada tawaran beasiswa melanjutkan pendidikan di luar negeri, tapi anda telat mengumpulkan syarat pendaftaran sehingga tidak dapat mengikuti tes masuk, mengenai hal ini ...",
+          image: null,
+          options: {
+            A: "Saya tetap berusaha agar bisa mengikuti seleksi beasiswa",
+            B: "Tidak berputus asa, berusaha menyiapkan segala persyaratan untuk tahun depan",
+            C: "Meminta pimpinan agar masih diperbolehkan mengikuti tes masuk",
+            D: "Biasa saja karena masih ada tahun depan",
+            E: "Tidak terlalu memusingkan karena saya punya koneksi dalam agar bisa ikut beasiswa",
+          },
+          key: "B",
+          tkpMap: { B: 5, A: 4, C: 3, D: 2, E: 1 },
+          discussion: "Urutan poin 5-1: B, A, C, D, E.",
+        },
+        {
+          id: 74,
+          type: "TKP",
+          question:
+            "Saat sedang rapat bersama seluruh pegawai divisi tempat saya bekerja, saya biasanya memberikan masukan berupa pendapat tetapi beberapa teman saya juga memberikan pendapat, sikap saya akan hal ini",
+          image: null,
+          options: {
+            A: "Tetap berpegang teguh pada ide saya",
+            B: "Mencoba mempengaruhi yang lain agar setuju terhadap pendapat saya",
+            C: "Saya cukup dekat dengan pimpinan rapat, saya yakin ide saya disetujui",
+            D: "Bersikap terbuka dan menerima semua pendapat yang ada",
+            E: "Mencoba selalu berfikir positif atas segala keputusan rapat",
+          },
+          key: "D",
+          tkpMap: { D: 5, E: 4, B: 3, A: 2, C: 1 },
+          discussion: "Urutan poin 5-1: D, E, B, A, C.",
+        },
+        {
+          id: 75,
+          type: "TKP",
+          question: "Jika ada waktu luang, selama akhir pekan saya biasanya",
+          image: null,
+          options: {
+            A: "Gunakan untuk tidur siang",
+            B: "Saya ajak keluarga untuk makan di luar",
+            C: "Berlatih bermain musik",
+            D: "Saya gunakan untuk mempelajari hal-hal lain yang sifatnya positif",
+            E: "Saya gunakan untuk menyelesaikan pekerjaan kantor yang belum selesai",
+          },
+          key: "B",
+          tkpMap: { B: 5, D: 4, C: 3, A: 2, E: 1 },
+          discussion: "Urutan poin 5-1: B, D, C, A, E.",
+        },
+        {
+          id: 76,
+          type: "TKP",
+          question:
+            "Pimpinan menginginkan agar berita-berita yang sedang hangat dibicarakan dibuat sebuah kumpulan berita agar memudahkan dibaca nantinya, maka sebaiknya ...",
+          image: null,
+          options: {
+            A: "Saya buatkan kliping koran dengan jangka waktu tiap bulan",
+            B: "Saya kumpulkan berita-berita dari internet dan saya bookmark tiap alamatnya",
+            C: "Saya kumpulkan berita majalah dan koran yang berisi berita penting",
+            D: "Saya bersama teman-teman menyimpan tiap koran dan majalah ke rak-rak khusus",
+            E: "Saya meminta OB untuk mengkliping koran yang penting",
+          },
+          key: "A",
+          tkpMap: { A: 5, B: 4, C: 3, D: 2, E: 1 },
+          discussion: "Urutan poin 5-1: A, B, C, D, E.",
+        },
+        {
+          id: 77,
+          type: "TKP",
+          question:
+            "Anda memiliki beberapa rumah yang disewakan. Salah satu orang yang menyewa rumah anda melaporkan jika rumah anda bocor. Maka yang akan anda lakukan adalah",
+          image: null,
+          options: {
+            A: "Segera membenahi kebocoran tersebut",
+            B: "Membebankan tanggung jawab kepada si penyewa",
+            C: "Memberikan penawaran rumah anda yang lain untuk ditempati",
+            D: "Meminta pada penyewa untuk sementara menambalnya sendiri",
+            E: "Meminta pada penyewa rumah untuk segera meninggalkan rumah tersebut bila sudah tidak nyaman",
+          },
+          key: "A",
+          tkpMap: { A: 5, C: 4, D: 3, B: 2, E: 1 },
+          discussion: "Urutan poin 5-1: A, C, D, B, E.",
+        },
+        {
+          id: 78,
+          type: "TKP",
+          question:
+            "Anda akan kedatangan rekan kerja anda dari luar kota. Dia berencana menginap di rumah anda. Maka yang akan anda lakukan adalah",
+          image: null,
+          options: {
+            A: "Meminta kantor untuk memfasilitasi kedatangannya selama di rumah anda",
+            B: "Menolaknya secara halus",
+            C: "Menyiapkan segala yang diperlukan sesuai dengan kemampuan anda",
+            D: "Meminta rekan anda untuk membawa perlengkapannya sendiri",
+            E: "Membolehkannya menginap di rumah asalkan urusan anda dimudahkan",
+          },
+          key: "C",
+          tkpMap: { C: 5, A: 4, B: 3, D: 2, E: 1 },
+          discussion: "Urutan poin 5-1: C, A, B, D, E.",
+        },
+        {
+          id: 79,
+          type: "TKP",
+          question:
+            "Seringkali terjadi kelalaian ketika kita memesan makanan, pelayan tidak langsung memberitahukan bila makanan yang kita pesan tersebut sudah habis. Menurut anda sebagai pelanggan yang perlu ditanggulangi dari hal tersebut adalah ...",
+          image: null,
+          options: {
+            A: "Pelayan tersebut segera memberi tahu jika makanan yang anda pesan sudah habis",
+            B: "Memberikan anda alternatif makanan lain saat anda memesan makanan",
+            C: "Memberikan catatan dimenu jika makanan tersebut sudah habis",
+            D: "Dengan inisiatif pribadi pelayan tersebut langsung mengganti menu yang hampir sama",
+            E: "Memberitahu anda bila anda bertanya",
+          },
+          key: "C",
+          tkpMap: { C: 5, B: 4, A: 3, E: 2, D: 1 },
+          discussion: "Urutan poin 5-1: C, B, A, E, D.",
+        },
+        {
+          id: 80,
+          type: "TKP",
+          question:
+            "Anda berencana untuk mengambil sisa cuti tahunan. Namun, tiba-tiba rekan anda meminta anda agar membatalkan cutinya karena rekan anda ingin menjenguk keluarganya yang sakit di luar kota. Maka reaksi yang anda berikan pada kejadian tersebut adalah",
+          image: null,
+          options: {
+            A: "Menunda cuti",
+            B: "Tetap cuti karena hak",
+            C: "Meminta maaf karena tidak dapat membantu",
+            D: "Mempertimbangkannya",
+            E: "Cuti bersamaan",
+          },
+          key: "A",
+          tkpMap: { A: 5, D: 4, C: 3, E: 2, B: 1 },
+          discussion: "Urutan poin 5-1: A, D, C, E, B.",
+        },
+        {
+          id: 81,
+          type: "TKP",
+          question:
+            "Tetangga anda sakit dan tidak bisa mengantar anaknya berangkat ke sekolah. Maka yang anda lakukan adalah...",
+          image: null,
+          options: {
+            A: "Membelikan obat agar lekas sembuh",
+            B: "Menawarkan diri untuk mengantarkan anaknya ke sekolah",
+            C: "Membawa tetangga ke rumah sakit",
+            D: "Menyarankan agar anak tidak perlu ke sekolah",
+            E: "Menelpon wali kelas dan meminta agar si anak tidak ke sekolah",
+          },
+          key: "B",
+          tkpMap: { B: 5, C: 4, A: 3, E: 2, D: 1 },
+          discussion: "Urutan poin 5-1: B, C, A, E, D.",
+        },
+        {
+          id: 82,
+          type: "TKP",
+          question:
+            "Rekan kerja anda dimarahi oleh atasan karena ada dokumen yang hilang. Maka yang anda lakukan adalah ...",
+          image: null,
+          options: {
+            A: "Membiarkannya untuk mengingat dimana dokumen tersebut",
+            B: "Menenangkannya karena dimarahai oleh atasan",
+            C: "Membantu mencari dokumen yang hilang",
+            D: "Ikut menyalahkannya",
+            E: "Pura-pura tidak tahu",
+          },
+          key: "C",
+          tkpMap: { C: 5, A: 4, B: 3, E: 2, D: 1 },
+          discussion: "Urutan poin 5-1: C, A, B, E, D.",
+        },
+        {
+          id: 83,
+          type: "TKP",
+          question: "Sebagai pegawai baru yang akan anda lakukan ...",
+          image: null,
+          options: {
+            A: "Bekerja sebaik mungkin",
+            B: "Mengerjakan tugas yang diberikan atasan",
+            C: "Berusaha secepat mungkin mempelajari tugas dan tanggung jawab serta membangun relasi dengan rekan kerja",
+            D: "Banyak bertanya pada rekan kerja tentang pekerjaan",
+            E: "Mengobservasi cara kerja rekan",
+          },
+          key: "C",
+          tkpMap: { C: 5, A: 4, B: 3, D: 2, E: 1 },
+          discussion: "Urutan poin 5-1: C, A, B, D, E.",
+        },
+        {
+          id: 84,
+          type: "TKP",
+          question:
+            "Peraturan baru mengubah sistem 3 shift menjadi 2 shift, terjadi perubahan waktu kerja. Kebetulan anda bekerja sekaligus kuliah. Cara anda menyikapi peraturan tersebut dengan ...",
+          image: null,
+          options: {
+            A: "Mengatur ulang jadwal kuliah agar tidak mengganggu jam kerja",
+            B: "Mengkomunikasikan kepada atasan tentang jadwal kerja dan kuliah agar tidak bentrok",
+            C: "Cuti kuliah sementara waktu sampai anda dapat membagi waktu dengan pekerjaan",
+            D: "Mengundurkan diri dari pekerjaan",
+            E: "Mencari kampus lain yang dapat menyesuaikan jadwal kuliah dengan jam kerja",
+          },
+          key: "B",
+          tkpMap: { B: 5, A: 4, C: 3, D: 2, E: 1 },
+          discussion: "Urutan poin 5-1: B, A, C, D, E.",
+        },
+        {
+          id: 85,
+          type: "TKP",
+          question:
+            "Anda adalah pegawai pusat yang mendapatkan kenaikan jabatan dan ditempatkan di daerah terpencil. Maka anda akan",
+          image: null,
+          options: {
+            A: "Melakukan negosiasi agar ditempatkan di kota besar",
+            B: "Menolak kenaikan pangkat tersebut dengan alasan belum mampu menjalankan amanat",
+            C: "Mengusulkan teman lain untuk diajukan",
+            D: "Menerima dan menjalankan tugas tersebut dengan penuh tanggung jawab",
+            E: "Meminta dimutasi ke divisi lain",
+          },
+          key: "D",
+          tkpMap: { D: 5, B: 4, C: 3, E: 2, A: 1 },
+          discussion: "Urutan poin 5-1: D, B, C, E, A.",
+        },
+        {
+          id: 86,
+          type: "TKP",
+          question:
+            "Anda baru sadar dompet anda tertinggal padahal anda sudah berada di dalam angkutan umum, maka anda akan ...",
+          image: null,
+          options: {
+            A: "Meminjam uang pada penumpang lain",
+            B: "Segera turun dan kembali ke rumah",
+            C: "Berkata jujur pada supir angkutan dan meminta maaf",
+            D: "Panik",
+            E: "Malu",
+          },
+          key: "C",
+          tkpMap: { C: 5, A: 4, B: 3, D: 2, E: 1 },
+          discussion: "Urutan poin 5-1: C, A, B, D, E.",
+        },
+        {
+          id: 87,
+          type: "TKP",
+          question:
+            "Ketika di dalam lift, anda hanya berdua dengan pejabat, maka anda akan ...",
+          image: null,
+          options: {
+            A: "Segera keluar lift",
+            B: "Salah tingkah",
+            C: "Menyapa dengan sopan",
+            D: "Bisa saja",
+            E: "Pura-pura sibuk bermain gadget",
+          },
+          key: "C",
+          tkpMap: { C: 5, D: 4, E: 3, B: 2, A: 1 },
+          discussion: "Urutan poin 5-1: C, D, E, B, A.",
+        },
+        {
+          id: 88,
+          type: "TKP",
+          question:
+            "Anda sedang ada janji dengan teman-teman anda, tapi teman-teman anda datang terlambat, maka sikap anda ...",
+          image: null,
+          options: {
+            A: "Sabar",
+            B: "Hal itu sudah biasa",
+            C: "Marah",
+            D: "Menegur keterlambatan mereka",
+            E: "Lain kali datang terlambat saja",
+          },
+          key: "D",
+          tkpMap: { D: 5, A: 4, C: 3, B: 2, E: 1 },
+          discussion: "Urutan poin 5-1: D, A, C, B, E.",
+        },
+        {
+          id: 89,
+          type: "TKP",
+          question:
+            "Suatu ketika rekan kerja anda banyak yang lembur, sementara anda sudah menyelesaikan pekerjaan, maka anda akan",
+          image: null,
+          options: {
+            A: "Ikut lembur karena sungkan",
+            B: "Izin pulang dan menyerahkan pekerjaan yang sudah anda selesaikan",
+            C: "Ikut lembur dengan keadaan terpaksa",
+            D: "Tetap pulang sambil menertawakan teman yang lembur",
+            E: "Pulang diam-diam",
+          },
+          key: "B",
+          tkpMap: { B: 5, E: 4, A: 3, C: 2, D: 1 },
+          discussion: "Urutan poin 5-1: B, E, A, C, D.",
+        },
+        {
+          id: 90,
+          type: "TKP",
+          question:
+            "Anda adalah seorang Puteri Indonesia sekaligus, suatu ketika anda akan mengikuti karantina Miss Universe, sedangkan masih banyak sekali beban pekerjaan kantor yang harus anda selesaikan, maka anda akan ...",
+          image: null,
+          options: {
+            A: "Keluar dari PNS",
+            B: "Meminta izin atasan agar bisa melimpahkan pekerjaan ke rekan yang lain",
+            C: "Segera menyelesaikan pekerjaan, kalau tidak terkejar, baru meminta izin atasan",
+            D: "Mengundurkan diri dari kontes Miss Universe",
+            E: "Marah pada keadaan",
+          },
+          key: "C",
+          tkpMap: { C: 5, B: 4, E: 3, D: 2, A: 1 },
+          discussion: "Urutan poin 5-1: C, B, E, D, A.",
+        },
+        {
+          id: 91,
+          type: "TKP",
+          question:
+            "Sebagai seorang artis papan atas, anda sedang menyelesaikan sinetron stripping dan sedang kejar tayang, padahal anda sangat lelah dan ingin istirahat beberapa hari, maka sikap anda",
+          image: null,
+          options: {
+            A: "Memohon izin cuti beberapa hari",
+            B: "Tetap melanjutkan shooting karena harus profesional",
+            C: "Mengkonsumsi suplemen dan vitamin agar bisa tetap fit untuk menyelesaikan shooting",
+            D: "Pura-pura sakit",
+            E: "Bekerja asal-asalan",
+          },
+          key: "C",
+          tkpMap: { C: 5, B: 4, A: 3, D: 2, E: 1 },
+          discussion: "Urutan poin 5-1: C, B, A, D, E.",
+        },
+        {
+          id: 92,
+          type: "TKP",
+          question:
+            "Hari ini anda kehujanan ketika pulang kantor, maka anda akan",
+          image: null,
+          options: {
+            A: "Menyalahkan ramalan cuaca",
+            B: "Biasa saja",
+            C: "Menyiapkan payung di dalam tas",
+            D: "Membawa baju lebih untuk hari-hari berikutnya",
+            E: "Berdoa agar tidak hujan",
+          },
+          key: "C",
+          tkpMap: { C: 5, D: 4, E: 3, B: 2, A: 1 },
+          discussion: "Urutan poin 5-1: C, D, E, B, A.",
+        },
+        {
+          id: 93,
+          type: "TKP",
+          question:
+            "Suatu ketika anda ditugaskan di front office untuk melayani pelanggan, padahal sebelumnya anda tidak pernah bekerja di bagian tersebut, maka anda akan",
+          image: null,
+          options: {
+            A: "Segera belajar",
+            B: "Asal bekerja",
+            C: "Bekerja sebisanya",
+            D: "Siap belajar dari apa yang nanti didapatkan dalam praktiknya",
+            E: "Takut",
+          },
+          key: "D",
+          tkpMap: { D: 5, A: 4, C: 3, B: 2, E: 1 },
+          discussion: "Urutan poin 5-1: D, A, C, B, E.",
+        },
+        {
+          id: 94,
+          type: "TKP",
+          question: "Bagaimana cara anda bekerja",
+          image: null,
+          options: {
+            A: "Mengikuti SOP yang ada",
+            B: "Mengikuti cara senior",
+            C: "Dengan cara sendiri",
+            D: "Mengikuti aturan yang ada",
+            E: "Mengikuti SOP dengan menambahkan sedikit motifasi",
+          },
+          key: "E",
+          tkpMap: { E: 5, A: 4, D: 3, B: 2, C: 1 },
+          discussion: "Urutan poin 5-1: E, A, D, B, C.",
+        },
+        {
+          id: 95,
+          type: "TKP",
+          question:
+            "Ketika banyak anggota tim kerja anda yang berbeda suku dengan anda, maka anda akan",
+          image: null,
+          options: {
+            A: "Bersikap toleran dan menghormati mereka",
+            B: "Menjaga jarak dengan mereka",
+            C: "Waspada dalam bersikap",
+            D: "Khawatir jika ucapan anda dapat menyinggung mereka",
+            E: "Meminta atasan untuk memindahkan anda ke tim kerja yang lain saja",
+          },
+          key: "A",
+          tkpMap: { A: 5, D: 4, C: 3, B: 2, E: 1 },
+          discussion: "Urutan poin 5-1: A, D, C, B, E.",
+        },
+        {
+          id: 96,
+          type: "TKP",
+          question:
+            "Ketika banyak anggota tim kerja anda yang berbeda agama dengan anda, maka anda akan ...",
+          image: null,
+          options: {
+            A: "Bersikap toleran dan menghormati mereka",
+            B: "Menjaga jarak dengan mereka",
+            C: "Waspada dalam bersikap",
+            D: "Khawatir jika ucapan anda dapat menyinggung mereka",
+            E: "Meminta atasan untuk memindahkan anda ke tim kerja yang lain saja",
+          },
+          key: "A",
+          tkpMap: { A: 5, D: 4, C: 3, B: 2, E: 1 },
+          discussion: "Urutan poin 5-1: A, D, C, B, E.",
+        },
+        {
+          id: 97,
+          type: "TKP",
+          question:
+            "Salah seorang rekan kerja dalam tim kerja anda merupakan seorang pegawai baru, maka anda ...",
+          image: null,
+          options: {
+            A: "Senang karena dia bisa dijadikan pesuruh",
+            B: "Senang membantunya dalam mempelajari lingkungan kerja",
+            C: "Cuek saja walau ia meminta bantuan pada saya",
+            D: "Berusaha bersikap dengan penuh wibawa di depannya",
+            E: "Meminta atasan untuk menggantinya dengan alasan ia belum siap dilibatkan dalam kerja tim",
+          },
+          key: "B",
+          tkpMap: { B: 5, D: 4, E: 3, A: 2, C: 1 },
+          discussion: "Urutan poin 5-1: B, D, E, A, C.",
+        },
+        {
+          id: 98,
+          type: "TKP",
+          question:
+            "Di kantor saya akan diadakan acara buka puasa bersama, maka saya akan",
+          image: null,
+          options: {
+            A: "Mengikuti acara tersebut karena merasa tidak enak jika tidak ikut",
+            B: "Pulang sebelum acara tersebut selesai",
+            C: "Izin tidak mengikuti acara tersebut karena anda sudah lelah",
+            D: "Ikut acara tersebut karena banyak rekan saya yang juga mengikutinya",
+            E: "Mengajak rekan-rekan sekantor untuk berpartisipasi dalam acara tersebut",
+          },
+          key: "E",
+          tkpMap: { E: 5, D: 4, A: 3, B: 2, C: 1 },
+          discussion: "Urutan poin 5-1: E, D, A, B, C.",
+        },
+        {
+          id: 99,
+          type: "TKP",
+          question:
+            "Di kantor saya akan diadakan acara sarapan bersama, maka saya akan",
+          image: null,
+          options: {
+            A: "Mengikuti acara tersebut karena merasa tidak enak jika tidak ikut",
+            B: "Pulang sebelum acara tersebut selesai",
+            C: "Izin tidak mengikuti acara tersebut karena anda sudah sarapan",
+            D: "Ikut acara tersebut karena banyak rekan saya yang juga mengikutinya",
+            E: "Mengajak rekan-rekan sekantor untuk berpartisipasi dalam acara tersebut",
+          },
+          key: "E",
+          tkpMap: { E: 5, D: 4, A: 3, C: 2, B: 1 },
+          discussion: "Urutan poin 5-1: E, D, A, C, B.",
+        },
+        {
+          id: 100,
+          type: "TKP",
+          question:
+            "Jika anak anda marah karena tidak dibelikan sebuah mainan yang dia inginkan, maka anda akan",
+          image: null,
+          options: {
+            A: "Memberinya pengertian agar membeli barang yang lebih banyak manfaatnya saja",
+            B: "Menyuruhnya untuk berhenti marah",
+            C: "Memarahinya agar berhenti merengek",
+            D: "Mendiamkannya hingga ia tenang",
+            E: "Meninggalkannya di toko mainan tersebut",
+          },
+          key: "A",
+          tkpMap: { A: 5, D: 4, B: 3, C: 2, E: 1 },
+          discussion:
+            "Urutan poin 5-1: A, D, B, C, E. (Asumsi berdasarkan pola jawaban terbaik TKP aspek sosial-budaya/pengendalian diri)",
+        },
+      ];
+
+      // ==========================================
+      // 2. VARIABEL GLOBAL
+      // ==========================================
+      let currentQuestionIndex = 0;
+      let userAnswers = {}; // { questionId: "A" }
+      let flaggedQuestions = new Set();
+      let timerInterval;
+      let timeRemaining = 100 * 60; // 100 menit dalam detik
+      let isExamFinished = false;
+
+      // ==========================================
+      // 3. FUNGSI UTAMA
+      // ==========================================
+
+      function startQuiz() {
+        document.getElementById("start-screen").classList.add("hidden");
+        document.getElementById("quiz-interface").classList.remove("hidden");
+        document.getElementById("quiz-interface").classList.add("flex");
+        document.getElementById("timer-container").classList.remove("hidden");
+
+        renderNavGrid();
+        loadQuestion(0);
+        startTimer();
+      }
+
+      function startTimer() {
+        timerInterval = setInterval(() => {
+          timeRemaining--;
+          updateTimerDisplay();
+
+          if (timeRemaining <= 0) {
+            clearInterval(timerInterval);
+            finishQuiz(true); // Force finish
+          }
+        }, 1000);
+      }
+
+      function updateTimerDisplay() {
+        const hours = Math.floor(timeRemaining / 3600);
+        const minutes = Math.floor((timeRemaining % 3600) / 60);
+        const seconds = timeRemaining % 60;
+
+        document.getElementById("timer-display").innerText = `${String(
+          hours
+        ).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(
+          seconds
+        ).padStart(2, "0")}`;
+
+        // Warning color
+        if (timeRemaining < 300) {
+          // Kurang dari 5 menit
+          document
+            .getElementById("timer-container")
+            .classList.add("bg-red-600", "text-white");
+          document
+            .getElementById("timer-container")
+            .classList.remove("bg-white", "text-blue-800");
+        }
+      }
+
+      function loadQuestion(index) {
+        currentQuestionIndex = index;
+        const q = questionBank[index];
+
+        // Update Header
+        document.getElementById("q-number").innerText = q.id;
+        document.getElementById("q-category").innerText = q.type;
+
+        // Update Nav Buttons
+        document.getElementById("btn-prev").disabled = index === 0;
+        document.getElementById("btn-next").disabled =
+          index === questionBank.length - 1;
+
+        // Update Flag Button Style
+        const btnFlag = document.getElementById("btn-flag");
+        if (flaggedQuestions.has(q.id)) {
+          btnFlag.innerHTML =
+            '<i class="fa-solid fa-flag mr-1"></i> Ragu (Aktif)';
+          btnFlag.classList.add("bg-yellow-400", "text-white");
+          btnFlag.classList.remove("bg-yellow-100", "text-yellow-700");
+        } else {
+          btnFlag.innerHTML =
+            '<i class="fa-regular fa-flag mr-1"></i> Ragu-ragu';
+          btnFlag.classList.remove("bg-yellow-400", "text-white");
+          btnFlag.classList.add("bg-yellow-100", "text-yellow-700");
+        }
+
+        // Update Question Text
+        document.getElementById("q-text").innerText = q.question;
+
+        // Update Image
+        const imgContainer = document.getElementById("q-image-container");
+        const imgEl = document.getElementById("q-image");
+        if (q.image) {
+          imgEl.src = q.image;
+          imgContainer.classList.remove("hidden");
+        } else {
+          imgContainer.classList.add("hidden");
+        }
+
+        // Generate Options
+        // Generate Options
+        const optionsContainer = document.getElementById("q-options");
+        optionsContainer.innerHTML = "";
+
+        Object.keys(q.options).forEach((key) => {
+          const optVal = q.options[key];
+          const isSelected = userAnswers[q.id] === key;
+
+          const btn = document.createElement("div");
+          btn.className = `flex items-center p-4 rounded-lg border-2 cursor-pointer transition-all ${
+            isSelected
+              ? "border-blue-600 bg-blue-50"
+              : "border-gray-200 hover:border-blue-300"
+          }`;
+          btn.onclick = () => selectAnswer(q.id, key);
+
+          // === DETEKSI GAMBAR ATAU TEKS ===
+          const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(optVal);
+
+          btn.innerHTML = `
+    <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold mr-4 flex-shrink-0 ${
+      isSelected ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-600"
+    }">
+      ${key}
+    </div>
+
+    ${
+      isImage
+        ? `<img 
+              src="${optVal}" 
+              alt="Opsi ${key}"
+              class="max-w-[220px] max-h-[150px] object-contain rounded border"
+           />`
+        : `<div class="text-gray-700">${optVal}</div>`
+    }
+  `;
+
+          optionsContainer.appendChild(btn);
+        });
+
+        updateNavGridUI();
+      }
+
+      function selectAnswer(qId, answerKey) {
+        if (isExamFinished) return;
+        userAnswers[qId] = answerKey;
+        loadQuestion(currentQuestionIndex); // Re-render to show selection
+        updateNavGridUI();
+      }
+
+      function nextQuestion() {
+        if (currentQuestionIndex < questionBank.length - 1) {
+          loadQuestion(currentQuestionIndex + 1);
+        }
+      }
+
+      function prevQuestion() {
+        if (currentQuestionIndex > 0) {
+          loadQuestion(currentQuestionIndex - 1);
+        }
+      }
+
+      function toggleFlag() {
+        const qId = questionBank[currentQuestionIndex].id;
+        if (flaggedQuestions.has(qId)) {
+          flaggedQuestions.delete(qId);
+        } else {
+          flaggedQuestions.add(qId);
+        }
+        loadQuestion(currentQuestionIndex);
+      }
+
+      // ==========================================
+      // 4. NAVIGASI GRID
+      // ==========================================
+      function renderNavGrid() {
+        const grid = document.getElementById("question-nav-grid");
+        grid.innerHTML = "";
+
+        questionBank.forEach((q, idx) => {
+          const btn = document.createElement("button");
+          btn.id = `nav-btn-${q.id}`;
+          btn.innerText = q.id;
+          btn.className = `h-10 w-full rounded-md font-bold text-sm border bg-white text-gray-600 hover:bg-gray-100`;
+          btn.onclick = () => loadQuestion(idx);
+          grid.appendChild(btn);
+        });
+      }
+
+      function updateNavGridUI() {
+        questionBank.forEach((q, idx) => {
+          const btn = document.getElementById(`nav-btn-${q.id}`);
+          const isAnswered = userAnswers[q.id] !== undefined;
+          const isFlagged = flaggedQuestions.has(q.id);
+          const isActive = idx === currentQuestionIndex;
+
+          // Reset classes
+          btn.className = `h-10 w-full rounded-md font-bold text-sm border transition-colors duration-200`;
+
+          if (isActive) {
+            btn.classList.add("bg-blue-600", "text-white", "border-blue-600"); // Active styling
+          } else if (isFlagged) {
+            btn.classList.add(
+              "bg-yellow-400",
+              "text-white",
+              "border-yellow-400"
+            );
+          } else if (isAnswered) {
+            btn.classList.add("bg-green-500", "text-white", "border-green-500");
+          } else {
+            btn.classList.add("bg-white", "text-gray-600", "hover:bg-gray-100");
+          }
+        });
+      }
+
+      // ==========================================
+      // 5. PENYELESAIAN & SCORING
+      // ==========================================
+      function finishQuizConfirmation() {
+        const answeredCount = Object.keys(userAnswers).length;
+        const total = questionBank.length;
+        if (answeredCount < total) {
+          // Bisa tambah warning "Masih ada soal kosong"
+        }
+        document.getElementById("finish-modal").classList.remove("hidden");
+      }
+
+      function closeModal() {
+        document.getElementById("finish-modal").classList.add("hidden");
+      }
+
+      function finishQuiz(force = false) {
+        clearInterval(timerInterval);
+        isExamFinished = true;
+        document.getElementById("finish-modal").classList.add("hidden");
+        document.getElementById("quiz-interface").classList.add("hidden");
+        document.getElementById("timer-container").classList.add("hidden");
+        document.getElementById("result-screen").classList.remove("hidden");
+
+        calculateResults();
+      }
+
+      function calculateResults() {
+        let scoreTWK = 0,
+          scoreTIU = 0,
+          scoreTKP = 0;
+        const reviewContainer = document.getElementById("review-container");
+        reviewContainer.innerHTML = "";
+
+        // Passing Grades (2024 Ref)
+        const PASS_TWK = 65;
+        const PASS_TIU = 80;
+        const PASS_TKP = 166;
+
+        questionBank.forEach((q) => {
+          const userAnswer = userAnswers[q.id];
+          let points = 0;
+          let isCorrect = false;
+
+          // Hitung Skor
+          if (q.type === "TKP") {
+            if (userAnswer && q.tkpMap) {
+              points = q.tkpMap[userAnswer] || 0;
+            } else {
+              points = 0;
+            }
+            scoreTKP += points;
+          } else {
+            // TWK & TIU
+            if (userAnswer === q.key) {
+              points = 5;
+              isCorrect = true;
+            } else {
+              points = 0;
+            }
+            if (q.type === "TWK") scoreTWK += points;
+            if (q.type === "TIU") scoreTIU += points;
+          }
+
+          // Generate Review HTML
+          const card = document.createElement("div");
+          card.className = "bg-gray-50 p-4 rounded-lg border border-gray-200";
+
+          let answerStatus = "";
+          if (q.type === "TKP") {
+            answerStatus = `<span class="text-blue-600 font-bold">Poin: ${points}</span>`;
+          } else {
+            answerStatus = isCorrect
+              ? '<span class="text-green-600 font-bold"><i class="fa-solid fa-check"></i> Benar</span>'
+              : '<span class="text-red-500 font-bold"><i class="fa-solid fa-xmark"></i> Salah</span>';
+          }
+
+          const keyDisplay = q.type === "TKP" ? "Lihat Pembahasan" : q.key;
+
+          card.innerHTML = `
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="font-bold text-gray-700">No. ${q.id} (${
+            q.type
+          })</span>
+                        ${answerStatus}
+                    </div>
+                    <p class="text-gray-800 mb-3">${q.question}</p>
+                    <div class="text-sm bg-white p-3 rounded border">
+                        <div class="grid grid-cols-2 gap-2 mb-2">
+                            <div>Jawaban Anda: <span class="font-bold">${
+                              userAnswer || "-"
+                            }</span></div>
+                            <div>Kunci: <span class="font-bold text-blue-600">${keyDisplay}</span></div>
+                        </div>
+                        <p class="text-gray-600 italic"><span class="font-semibold">Pembahasan:</span> ${
+                          q.discussion || "-"
+                        }</p>
+                    </div>
+                `;
+          reviewContainer.appendChild(card);
+        });
+
+        // Update UI Skor
+        const totalScore = scoreTWK + scoreTIU + scoreTKP;
+        document.getElementById("score-total").innerText = totalScore;
+        document.getElementById("score-twk").innerText = scoreTWK;
+        document.getElementById("score-tiu").innerText = scoreTIU;
+        document.getElementById("score-tkp").innerText = scoreTKP;
+
+        // Cek Kelulusan
+        const statusEl = document.getElementById("score-status");
+        const isPass =
+          scoreTWK >= PASS_TWK && scoreTIU >= PASS_TIU && scoreTKP >= PASS_TKP;
+
+        if (isPass) {
+          statusEl.innerText = "LULUS SKD (MEMENUHI SYARAT)";
+          statusEl.classList.add("bg-green-500");
+          statusEl.classList.remove("bg-white/20");
+        } else {
+          statusEl.innerText = "TIDAK LULUS (BELUM MEMENUHI)";
+          statusEl.classList.add("bg-red-500");
+          statusEl.classList.remove("bg-white/20");
+        }
+
+        document.getElementById("result-date").innerText =
+          new Date().toLocaleString("id-ID");
+      }
+
+      // ==========================================
+      // 6. EXPORT PDF
+      // ==========================================
+      function exportToPDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        const total = document.getElementById("score-total").innerText;
+        const twk = document.getElementById("score-twk").innerText;
+        const tiu = document.getElementById("score-tiu").innerText;
+        const tkp = document.getElementById("score-tkp").innerText;
+        const status = document.getElementById("score-status").innerText;
+
+        // Header
+        doc.setFontSize(18);
+        doc.text("Hasil Simulasi SKD CPNS", 105, 20, null, null, "center");
+        doc.setFontSize(12);
+        doc.text(
+          `Tanggal: ${new Date().toLocaleString("id-ID")}`,
+          105,
+          30,
+          null,
+          null,
+          "center"
+        );
+
+        // Summary Table
+        doc.autoTable({
+          startY: 40,
+          head: [["Kategori", "Skor Perolehan", "Passing Grade", "Status"]],
+          body: [
+            ["TWK", twk, "65", twk >= 65 ? "Lulus" : "Tidak"],
+            ["TIU", tiu, "80", tiu >= 80 ? "Lulus" : "Tidak"],
+            ["TKP", tkp, "166", tkp >= 166 ? "Lulus" : "Tidak"],
+            ["TOTAL", total, "-", status],
+          ],
+          theme: "grid",
+          headStyles: { fillColor: [41, 128, 185] },
+        });
+
+        // Detail Jawaban
+        const rows = questionBank.map((q) => {
+          const userAns = userAnswers[q.id] || "-";
+          let status = "";
+          let score = 0;
+
+          if (q.type === "TKP") {
+            score =
+              q.tkpMap && userAnswers[q.id] ? q.tkpMap[userAnswers[q.id]] : 0;
+            status = `Poin ${score}`;
+          } else {
+            status = userAns === q.key ? "Benar" : "Salah";
+          }
+
+          return [q.id, q.type, userAns, q.key || "TKP", status];
+        });
+
+        doc.text("Rincian Jawaban:", 14, doc.lastAutoTable.finalY + 10);
+
+        doc.autoTable({
+          startY: doc.lastAutoTable.finalY + 15,
+          head: [["No", "Tipe", "Jawaban Kamu", "Kunci", "Status"]],
+          body: rows,
+          theme: "striped",
+        });
+
+        doc.save("Hasil_Simulasi_SKD.pdf");
+      }
+    </script>
+  </body>
+</html>
